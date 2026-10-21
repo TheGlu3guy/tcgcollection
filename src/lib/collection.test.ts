@@ -8,6 +8,7 @@ import {
   mergeCloudData,
   normalizeAppData,
   quantityForCard,
+  sortCardsByPrice,
   toggleListCard,
   toggleWishlist,
 } from "./collection";
@@ -76,6 +77,34 @@ describe("collection operations", () => {
 
     expect(data.collection).toHaveLength(2);
     expect(quantityForCard(data.collection, card.key)).toBe(2);
+  });
+
+  it("sorts priced cards while keeping unavailable prices last", () => {
+    const cheap = { ...card, key: "en:cheap", name: "Cheap Card" };
+    const expensive = { ...card, key: "en:expensive", name: "Expensive Card" };
+    const missing = { ...card, key: "en:missing", name: "Missing Price" };
+    const prices = {
+      "en:cheap": {
+        tcgplayer: { amount: 1, currency: "USD", source: "TCGplayer" },
+        cardmarket: null,
+      },
+      "en:expensive": {
+        tcgplayer: { amount: 50, currency: "USD", source: "TCGplayer" },
+        cardmarket: null,
+      },
+      "en:missing": { tcgplayer: null, cardmarket: null },
+    };
+
+    expect(
+      sortCardsByPrice([cheap, missing, expensive], prices, "price-desc").map(
+        (item) => item.name,
+      ),
+    ).toEqual(["Expensive Card", "Cheap Card", "Missing Price"]);
+    expect(
+      sortCardsByPrice([cheap, missing, expensive], prices, "price-asc").map(
+        (item) => item.name,
+      ),
+    ).toEqual(["Cheap Card", "Expensive Card", "Missing Price"]);
   });
 
   it("removes empty print groups when the last copy is removed", () => {

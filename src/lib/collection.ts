@@ -6,6 +6,7 @@ import type {
   CardFilters,
   CatalogCard,
   CatalogSet,
+  MarketPrices,
 } from "../types";
 
 export function normalizeAppData(input: Partial<AppData> | null | undefined): AppData {
@@ -311,6 +312,9 @@ export function filterCards(
         return a.localId.localeCompare(b.localId, undefined, { numeric: true });
       case "set-asc":
         return a.setName.localeCompare(b.setName) || a.localId.localeCompare(b.localId, undefined, { numeric: true });
+      case "price-desc":
+      case "price-asc":
+        return a.name.localeCompare(b.name);
       case "release-new":
       default:
         if (!releaseA && !releaseB) return a.name.localeCompare(b.name);
@@ -323,6 +327,28 @@ export function filterCards(
           a.localId.localeCompare(b.localId, undefined, { numeric: true })
         );
     }
+  });
+}
+
+export function sortCardsByPrice(
+  cards: CatalogCard[],
+  prices: Record<string, MarketPrices>,
+  direction: "price-desc" | "price-asc",
+): CatalogCard[] {
+  const amountFor = (card: CatalogCard) =>
+    prices[card.key]?.tcgplayer?.amount ??
+    prices[card.key]?.cardmarket?.amount;
+  return cards.slice().sort((a, b) => {
+    const amountA = amountFor(a);
+    const amountB = amountFor(b);
+    if (amountA === undefined && amountB === undefined) {
+      return a.name.localeCompare(b.name);
+    }
+    if (amountA === undefined) return 1;
+    if (amountB === undefined) return -1;
+    return direction === "price-desc"
+      ? amountB - amountA || a.name.localeCompare(b.name)
+      : amountA - amountB || a.name.localeCompare(b.name);
   });
 }
 

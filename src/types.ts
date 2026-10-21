@@ -100,7 +100,9 @@ export type CardSort =
   | "name-asc"
   | "name-desc"
   | "number-asc"
-  | "set-asc";
+  | "set-asc"
+  | "price-desc"
+  | "price-asc";
 export type CardView = "grid" | "list";
 
 export interface CardFilters {

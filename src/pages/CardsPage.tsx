@@ -19,6 +19,7 @@ import { LANGUAGE_BY_CODE, LANGUAGES, REGIONS } from "../lib/constants";
 import {
   filterCards,
   formatNumber,
+  sortCardsByPrice,
 } from "../lib/collection";
 import {
   getStoredCopyGroupKey,
@@ -60,6 +61,7 @@ interface CardsPageProps {
 }
 
 const PAGE_SIZE = 72;
+const PRICE_SORT_LIMIT = 1000;
 
 export function CardsPage({
   catalog,
@@ -83,6 +85,7 @@ export function CardsPage({
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [prices, setPrices] = useState<Record<string, MarketPrices>>({});
   const [pricingLoading, setPricingLoading] = useState<Set<string>>(new Set());
+  const [priceChecked, setPriceChecked] = useState<Set<string>>(new Set());
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const filteredCards = useMemo(
@@ -131,14 +134,34 @@ export function CardsPage({
         .sort((a, b) => (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "")),
     [catalog.sets, filters.language, filters.region],
   );
-  const visibleCards = filteredCards.slice(0, visibleCount);
+  const priceSortActive = filters.sort === "price-asc" || filters.sort === "price-desc";
+  const sortedCards = useMemo(
+    () =>
+      priceSortActive
+        ? sortCardsByPrice(filteredCards, prices, filters.sort as "price-asc" | "price-desc")
+        : filteredCards,
+    [filteredCards, filters.sort, priceSortActive, prices],
+  );
+  const visibleCards = sortedCards.slice(0, visibleCount);
+  const priceFetchCards = useMemo(
+    () =>
+      priceSortActive
+        ? filteredCards.slice(0, PRICE_SORT_LIMIT)
+        : visibleCards,
+    [filteredCards, priceSortActive, visibleCards],
+  );
   const selectedCards = useMemo(
     () => filteredCards.filter((card) => selectedKeys.has(card.key)),
     [filteredCards, selectedKeys],
   );
   const allFilteredSelected =
     filteredCards.length > 0 && selectedCards.length === filteredCards.length;
-  const visiblePriceSignature = visibleCards.map((card) => card.key).join("|");
+  const visiblePriceSignature = priceFetchCards.map((card) => card.key).join("|");
+  const priceSortLoading =
+    priceSortActive &&
+    priceFetchCards.some((card) => !priceChecked.has(card.key));
+  const priceSortTruncated =
+    priceSortActive && filteredCards.length > PRICE_SORT_LIMIT;
   const activeFilterCount = [
     filters.region !== "all",
     filters.language !== "all",
@@ -173,13 +196,14 @@ export function CardsPage({
 
   useEffect(() => {
     const controller = new AbortController();
-    const batch = visibleCards;
+    const batch = priceFetchCards;
     const batchKeys = batch.map((card) => card.key);
     setPricingLoading((current) => new Set([...current, ...batchKeys]));
     void loadMarketPrices(
       batch,
       (cardKey, price) => {
         setPrices((current) => ({ ...current, [cardKey]: price }));
+        setPriceChecked((current) => new Set([...current, cardKey]));
         setPricingLoading((current) => {
           const next = new Set(current);
           next.delete(cardKey);
@@ -188,6 +212,7 @@ export function CardsPage({
       },
       controller.signal,
     ).finally(() => {
+      setPriceChecked((current) => new Set([...current, ...batchKeys]));
       setPricingLoading((current) => {
         const next = new Set(current);
         for (const key of batchKeys) next.delete(key);
@@ -254,6 +279,8 @@ export function CardsPage({
             <option value="name-desc">Name Z–A</option>
             <option value="number-asc">Card number</option>
             <option value="set-asc">Set name</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="price-asc">Price: low to high</option>
           </select>
           <ChevronDown size={14} />
         </label>
@@ -449,6 +476,15 @@ export function CardsPage({
                   "Unknown list"}
             </span>
           )}
+          {priceSortActive && (
+            <span className="active-set-label">
+              {priceSortLoading
+                ? "Loading prices to sort…"
+                : priceSortTruncated
+                  ? `Price sorted for the first ${formatNumber(PRICE_SORT_LIMIT)} filtered cards`
+                  : "Sorted by market estimate · unavailable prices last"}
+            </span>
+          )}
         </div>
         <div className="catalog-toolbar-actions">
           <button
@@ -604,7 +640,7 @@ export function CardsPage({
               />
             ))}
           </div>
-          {visibleCount < filteredCards.length && (
+          {visibleCount < sortedCards.length && (
             <div className="load-more-row">
               <button
                 className="secondary-button large"
@@ -613,7 +649,7 @@ export function CardsPage({
               >
                 Load more cards
                 <span>
-                  {formatNumber(Math.min(PAGE_SIZE, filteredCards.length - visibleCount))} remaining
+                  {formatNumber(Math.min(PAGE_SIZE, sortedCards.length - visibleCount))} remaining
                 </span>
               </button>
             </div>
