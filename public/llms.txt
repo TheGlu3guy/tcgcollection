@@ -1,0 +1,15 @@
+# TCG Collection
+
+TCG Collection is an unofficial, local-first Pokémon Trading Card Game collection tracker.
+
+## Primary page
+
+- [TCG Collection](https://theglu3guy.github.io/tcgcollection/): Search the multilingual card catalog, manage a collection and wishlist, create custom lists, track sets, and view Pokédex progress.
+
+## Data
+
+Card metadata and images are provided by [TCGdex](https://tcgdex.dev).
+
+## Usage
+
+Personal collection data is stored only in the visitor's browser. This project is not affiliated with The Pokémon Company.

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 670" role="img" aria-label="Card image unavailable">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#26374a"/>
+      <stop offset="1" stop-color="#121a24"/>
+    </linearGradient>
+    <radialGradient id="shine">
+      <stop stop-color="#ffffff" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="670" rx="28" fill="url(#bg)"/>
+  <circle cx="390" cy="110" r="180" fill="url(#shine)"/>
+  <circle cx="240" cy="270" r="105" fill="none" stroke="#f3f4ef" stroke-opacity=".18" stroke-width="14"/>
+  <path d="M135 270h210M240 165v210" stroke="#f3f4ef" stroke-opacity=".18" stroke-width="14"/>
+  <circle cx="240" cy="270" r="34" fill="#f3f4ef" fill-opacity=".12" stroke="#f3f4ef" stroke-opacity=".3" stroke-width="9"/>
+  <text x="240" y="480" text-anchor="middle" fill="#f3f4ef" opacity=".74" font-family="system-ui, sans-serif" font-size="24">IMAGE NOT AVAILABLE</text>
+  <text x="240" y="518" text-anchor="middle" fill="#f3f4ef" opacity=".42" font-family="system-ui, sans-serif" font-size="18">TCGdex catalog</text>
+</svg>
