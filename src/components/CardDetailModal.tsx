@@ -12,10 +12,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { CONDITIONS, LANGUAGE_BY_CODE, VARIANTS } from "../lib/constants";
-import { getMarketPrice, imageUrl, loadCardDetail } from "../lib/catalog";
+import { getMarketPrices, imageUrl, loadCardDetail } from "../lib/catalog";
 import {
   formatCurrency,
-  quantityForCard,
   updateCardCopy,
 } from "../lib/collection";
 import type {
@@ -23,13 +22,13 @@ import type {
   CardCopy,
   CardDetail,
   CatalogCard,
-  PriceSnapshot,
 } from "../types";
 import { CardImage, CloseButton, Modal } from "./Shared";
 
 interface CardDetailModalProps {
   card: CatalogCard;
   data: AppData;
+  languageVariants: CatalogCard[];
   onClose: () => void;
   onAdd: (options: {
     condition: string;
@@ -45,17 +44,13 @@ interface CardDetailModalProps {
   onDataChange: (next: AppData) => void;
   onChangeList: (listId: string) => void;
   onCreateList: () => void;
-}
-
-function pricesFromDetail(detail: CardDetail | null): PriceSnapshot | null {
-  const price = getMarketPrice(detail);
-  if (!price) return null;
-  return price;
+  onSwitchLanguage: (card: CatalogCard) => void;
 }
 
 export function CardDetailModal({
   card,
   data,
+  languageVariants,
   onClose,
   onAdd,
   onRemoveOne,
@@ -63,6 +58,7 @@ export function CardDetailModal({
   onDataChange,
   onChangeList,
   onCreateList,
+  onSwitchLanguage,
 }: CardDetailModalProps) {
   const [detail, setDetail] = useState<CardDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,7 +71,7 @@ export function CardDetailModal({
     const controller = new AbortController();
     setLoading(true);
     setError("");
-    loadCardDetail(card.language, card.id, controller.signal)
+    loadCardDetail(card.language, card.id, controller.signal, true)
       .then(setDetail)
       .catch((reason) => {
         if (!controller.signal.aborted) {
@@ -88,13 +84,18 @@ export function CardDetailModal({
     return () => controller.abort();
   }, [card.id, card.language]);
 
-  const quantity = quantityForCard(data.collection, card.key);
-  const ownedCopies = data.collection.filter((copy) => copy.cardKey === card.key);
-  const price = useMemo(() => pricesFromDetail(detail), [detail]);
+  const variantKeys = new Set(languageVariants.map((variant) => variant.key));
+  const ownedCopies = data.collection.filter((copy) => variantKeys.has(copy.cardKey));
+  const quantity = ownedCopies.reduce((total, copy) => total + copy.quantity, 0);
+  const marketPrices = useMemo(() => getMarketPrices(detail), [detail]);
+  const price = marketPrices.tcgplayer ?? marketPrices.cardmarket;
   const language = LANGUAGE_BY_CODE[card.language];
-  const wishlisted = data.wishlist.includes(card.key);
-  const inLists = data.lists.filter((list) => list.cardKeys.includes(card.key));
-  const image = imageUrl(detail?.image ?? card.image, "high");
+  const wishlisted = data.wishlist.some((key) => variantKeys.has(key));
+  const inLists = data.lists.filter((list) =>
+    list.cardKeys.some((key) => variantKeys.has(key)),
+  );
+  const image =
+    imageUrl(detail?.image ?? card.image, "high") ?? marketPrices.imageUrl;
 
   const updateNotes = (value: string) => {
     setNotes(value);
@@ -110,10 +111,28 @@ export function CardDetailModal({
   return (
     <Modal onClose={onClose} className="card-detail-modal" labelledBy="card-detail-title">
       <div className="card-detail-topbar">
-        <div>
+        <label className="detail-language-select">
           <span className={`region-dot region-${card.region.toLocaleLowerCase()}`} />
-          {language.flag} {language.label}
-        </div>
+          <span>{language.flag}</span>
+          <select
+            value={card.language}
+            onChange={(event) => {
+              const next = languageVariants.find(
+                (variant) => variant.language === event.target.value,
+              );
+              if (next) onSwitchLanguage(next);
+            }}
+            aria-label="Card language"
+          >
+            {languageVariants.map((variant) => (
+              <option key={variant.key} value={variant.language}>
+                {LANGUAGE_BY_CODE[variant.language].label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={13} />
+          <small>{languageVariants.length} available</small>
+        </label>
         <CloseButton onClick={onClose} />
       </div>
 
@@ -329,7 +348,7 @@ export function CardDetailModal({
               </p>
               <div className="list-checks">
                 {data.lists.map((list) => {
-                  const checked = list.cardKeys.includes(card.key);
+                  const checked = list.cardKeys.some((key) => variantKeys.has(key));
                   return (
                     <label key={list.id} className={checked ? "checked" : ""}>
                       <input

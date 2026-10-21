@@ -5,15 +5,18 @@ import {
   decrementCardCopy,
   filterCards,
   getGenerationStats,
+  mergeCloudData,
   normalizeAppData,
   quantityForCard,
   toggleListCard,
   toggleWishlist,
 } from "./collection";
 import type { AppData, CardFilters, CatalogCard } from "../types";
+import { getVisibleCards, getVisibleSets } from "./cardGroups";
 
 const card: CatalogCard = {
   key: "en:base1-4",
+  groupKey: "base1:4",
   id: "base1-4",
   localId: "4",
   name: "Charizard",
@@ -27,6 +30,7 @@ const card: CatalogCard = {
   setReleaseDate: "1999-01-09",
   setSeries: "Base",
   setTotal: 102,
+  artist: "Mitsuhiro Arita",
 };
 
 function freshData(): AppData {
@@ -38,7 +42,9 @@ const baseFilters: CardFilters = {
   region: "all",
   language: "all",
   setId: "all",
+  artist: "",
   status: "all",
+  listId: "all",
   sort: "release-new",
 };
 
@@ -112,8 +118,41 @@ describe("collection operations", () => {
   });
 });
 
+describe("cloud collection merging", () => {
+  it("keeps the newest copy and unions independent wishlist entries", () => {
+    const local = freshData();
+    local.collection = [
+      {
+        id: "copy-1",
+        cardKey: "en:base1-4",
+        cardId: "base1-4",
+        language: "en",
+        name: "Charizard",
+        setId: "base1",
+        setName: "Base Set",
+        quantity: 2,
+        condition: "Near Mint",
+        variant: "Holo",
+        currency: "EUR",
+        notes: "",
+        addedAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-02T00:00:00.000Z",
+      },
+    ];
+    local.wishlist = ["en:base1-2"];
+    const remote = freshData();
+    remote.wishlist = ["en:base1-3"];
+
+    const merged = mergeCloudData(local, remote);
+
+    expect(merged.collection).toHaveLength(1);
+    expect(merged.collection[0].quantity).toBe(2);
+    expect(merged.wishlist).toEqual(["en:base1-3", "en:base1-2"]);
+  });
+});
+
 describe("filters and statistics", () => {
-  it("filters by collection and wishlist status", () => {
+  it("filters collection state and wishlist membership independently", () => {
     const data = toggleWishlist(
       addCardCopy(freshData(), card),
       card.key,
@@ -123,12 +162,46 @@ describe("filters and statistics", () => {
       filterCards([card], { ...baseFilters, status: "collection" }, data),
     ).toHaveLength(1);
     expect(
-      filterCards([card], { ...baseFilters, query: "missing", status: "wishlist" }, data),
+      filterCards([card], { ...baseFilters, listId: "wishlist" }, data),
+    ).toHaveLength(1);
+    expect(
+      filterCards([card], { ...baseFilters, status: "not-collection" }, freshData()),
+    ).toHaveLength(1);
+  });
+
+  it("filters membership in a custom list", () => {
+    const data = {
+      ...freshData(),
+      lists: [{
+        id: "binder",
+        name: "Binder",
+        description: "",
+        color: "#fff",
+        cardKeys: [card.key],
+        createdAt: "",
+        updatedAt: "",
+      }],
+    };
+
+    expect(
+      filterCards([card], { ...baseFilters, listId: "binder" }, data),
+    ).toHaveLength(1);
+    expect(
+      filterCards([card], { ...baseFilters, listId: "other" }, data),
     ).toHaveLength(0);
   });
 
   it("places cards with unknown release dates after dated cards", () => {
-    const unknown = { ...card, key: "en:unknown", id: "unknown-1", setReleaseDate: undefined, name: "Unown" };
+    const unknown = {
+      ...card,
+      key: "en:unknown",
+      groupKey: "unknown:1",
+      id: "unknown-1",
+      localId: "1",
+      setId: "unknown",
+      setReleaseDate: undefined,
+      name: "Unown",
+    };
     const sorted = filterCards([unknown, card], baseFilters, freshData());
 
     expect(sorted.map((item) => item.name)).toEqual(["Charizard", "Unown"]);
@@ -150,5 +223,99 @@ describe("filters and statistics", () => {
     expect(restored.wishlist).toEqual(["en:base1-4"]);
     expect(restored.preferences.defaultCondition).toBe("Near Mint");
     expect(restored.lists).toEqual([]);
+  });
+
+  it("shows one card in English-first mode across translations", () => {
+    const french = {
+      ...card,
+      key: "fr:base1-4",
+      language: "fr" as const,
+      languageLabel: "French",
+      name: "Dracaufeu",
+      searchName: "dracaufeu base1-4 4",
+    };
+    const visible = getVisibleCards([french, card], "all");
+
+    expect(visible).toHaveLength(1);
+    expect(visible[0].language).toBe("en");
+  });
+
+  it("keeps collection status when the owned translation differs from the displayed one", () => {
+    const french = {
+      ...card,
+      key: "fr:base1-4",
+      language: "fr" as const,
+      languageLabel: "French",
+      name: "Dracaufeu",
+      searchName: "dracaufeu base1-4 4",
+    };
+    const data = addCardCopy(freshData(), french);
+    const visible = filterCards(
+      [french, card],
+      { ...baseFilters, status: "collection" },
+      data,
+    );
+
+    expect(visible).toHaveLength(1);
+    expect(visible[0].language).toBe("en");
+  });
+
+  it("falls back to an available language when English is missing", () => {
+    const french = {
+      ...card,
+      key: "fr:base1-4",
+      language: "fr" as const,
+      languageLabel: "French",
+      name: "Dracaufeu",
+      searchName: "dracaufeu base1-4 4",
+    };
+    const visible = getVisibleCards([french], "all");
+
+    expect(visible).toHaveLength(1);
+    expect(visible[0].language).toBe("fr");
+  });
+
+  it("filters by illustrator", () => {
+    const otherArtist = {
+      ...card,
+      key: "en:base1-5",
+      groupKey: "base1:5",
+      id: "base1-5",
+      localId: "5",
+      name: "Gyarados",
+      searchName: "gyarados base1-5 5",
+      artist: "Mitsuhiro Arita",
+    };
+    const filtered = filterCards(
+      [card, otherArtist],
+      { ...baseFilters, artist: "mitsuhiro" },
+      freshData(),
+    );
+
+    expect(filtered.map((item) => item.name)).toEqual(["Charizard", "Gyarados"]);
+  });
+
+  it("deduplicates sets while retaining the preferred language", () => {
+    const englishSet = {
+      key: "en:base1",
+      id: "base1",
+      name: "Base Set",
+      language: "en" as const,
+      languageLabel: "English",
+      region: "International" as const,
+      total: 102,
+      official: 102,
+      series: "Base",
+      seriesId: "base",
+    };
+    const frenchSet = {
+      ...englishSet,
+      key: "fr:base1",
+      name: "Set de Base",
+      language: "fr" as const,
+      languageLabel: "French",
+    };
+
+    expect(getVisibleSets([frenchSet, englishSet], "all")).toEqual([englishSet]);
   });
 });

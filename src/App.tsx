@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { CardDetailModal } from "./components/CardDetailModal";
 import {
+  BulkListDialog,
   ListEditorDialog,
   ListPickerDialog,
   SettingsDialog,
@@ -39,14 +40,38 @@ import {
 import { imageUrl, loadCardDetail, loadCatalog } from "./lib/catalog";
 import {
   addCardCopy,
+  decrementCardGroup,
   decrementCardCopy,
   formatNumber,
+  mergeCloudData,
   normalizeAppData,
   quantityForCard,
   toggleListCard,
+  toggleListCardGroup,
   toggleWishlist,
+  toggleWishlistGroup,
   updateCardCopy,
 } from "./lib/collection";
+import {
+  getLanguageVariants,
+  getStoredCopyGroupKey,
+  withRecoveredCards,
+} from "./lib/cardGroups";
+import {
+  cloudErrorMessage,
+  getCloudSession,
+  INITIAL_CLOUD_STATE,
+  isCloudConfigured,
+  loadCloudCollection,
+  requestCloudPasswordReset,
+  saveCloudCollection,
+  signInToCloud,
+  signOutOfCloud,
+  signUpForCloud,
+  subscribeToCloudSession,
+  updateCloudPassword,
+} from "./lib/cloud";
+import type { CloudSyncState } from "./lib/cloud";
 import type {
   AppData,
   CardFilters,
@@ -59,6 +84,15 @@ import type {
 } from "./types";
 
 const PAGE_NAMES: PageName[] = ["dashboard", "cards", "sets", "lists", "pokedex"];
+const CLOUD_CLIENT_KEY = "tcgcollection-cloud-client-id";
+
+function getCloudClientId(): string {
+  const existing = localStorage.getItem(CLOUD_CLIENT_KEY);
+  if (existing) return existing;
+  const id = crypto.randomUUID();
+  localStorage.setItem(CLOUD_CLIENT_KEY, id);
+  return id;
+}
 
 function getStoredData(): AppData {
   try {
@@ -93,18 +127,33 @@ export default function App() {
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncLanguage, setSyncLanguage] = useState("");
   const [page, setPage] = useState<PageName>(initialPage);
-  const [filters, setFilters] = useState<CardFilters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<CardFilters>({
+    ...DEFAULT_FILTERS,
+    language: data.preferences.catalogLanguage,
+  });
   const [view, setView] = useState<CardView>("grid");
   const [activeCard, setActiveCard] = useState<CatalogCard | null>(null);
   const [pickerCard, setPickerCard] = useState<CatalogCard | null>(null);
   const [listEditor, setListEditor] = useState<{
     list?: CardList;
     pendingCard?: CatalogCard;
+    pendingCards?: CatalogCard[];
   } | null>(null);
+  const [bulkListCards, setBulkListCards] = useState<CatalogCard[] | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [globalSearch, setGlobalSearch] = useState("");
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [cloud, setCloud] = useState<CloudSyncState>(INITIAL_CLOUD_STATE);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
+  const cloudRevisionRef = useRef<number | null>(null);
+  const cloudUserIdRef = useRef<string | null>(null);
+  const cloudSessionInFlightRef = useRef<string | null>(null);
+  const cloudHydratedRef = useRef(false);
+  const cloudLastSavedRef = useRef("");
+  const cloudClientIdRef = useRef(getCloudClientId());
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   const pushToast = useCallback((message: string, kind: Toast["kind"] = "success") => {
     const id = Date.now() + Math.random();
@@ -156,10 +205,232 @@ export default function App() {
   }, [data, pushToast]);
 
   useEffect(() => {
+    if (!catalog) return;
+    setCatalog((current) =>
+      current ? withRecoveredCards(current, data.collection) : current,
+    );
+  }, [catalog, data.collection]);
+
+  const applyRemoteCloud = useCallback((remote: NonNullable<Awaited<ReturnType<typeof loadCloudCollection>>>) => {
+    const remoteData = normalizeAppData(remote.data);
+    cloudRevisionRef.current = remote.revision;
+    cloudLastSavedRef.current = JSON.stringify(remoteData);
+    cloudHydratedRef.current = true;
+    setData(remoteData);
+    setCloud((current) => ({
+      ...current,
+      authReady: true,
+      status: "synced",
+      lastSyncedAt: remote.updatedAt,
+      error: null,
+    }));
+  }, []);
+
+  const loadSessionCloud = useCallback(
+    async (session: NonNullable<Awaited<ReturnType<typeof getCloudSession>>>) => {
+      const userId = session.user.id;
+      if (
+        cloudHydratedRef.current &&
+        cloudUserIdRef.current === userId
+      ) {
+        return;
+      }
+      if (cloudSessionInFlightRef.current === userId) return;
+      cloudSessionInFlightRef.current = userId;
+      cloudUserIdRef.current = userId;
+      cloudHydratedRef.current = false;
+      cloudRevisionRef.current = null;
+      setCloud((current) => ({
+        ...current,
+        configured: true,
+        authReady: true,
+        status: "loading",
+        email: session.user.email ?? null,
+        error: null,
+        message: null,
+      }));
+
+      try {
+        const remote = await loadCloudCollection(userId);
+        if (remote) {
+          applyRemoteCloud(remote);
+          pushToast("Cloud collection loaded.");
+          return;
+        }
+
+        const localSnapshot = dataRef.current;
+        const result = await saveCloudCollection(
+          localSnapshot,
+          0,
+          cloudClientIdRef.current,
+        );
+        if (!result.saved) {
+          const racedRemote = await loadCloudCollection(userId);
+          if (!racedRemote) {
+            throw new Error("The cloud collection changed but could not be loaded.");
+          }
+          applyRemoteCloud(racedRemote);
+          return;
+        }
+
+        cloudRevisionRef.current = result.revision;
+        cloudLastSavedRef.current = JSON.stringify(localSnapshot);
+        cloudHydratedRef.current = true;
+        setCloud((current) => ({
+          ...current,
+          status: "synced",
+          lastSyncedAt: new Date().toISOString(),
+          error: null,
+        }));
+        pushToast("This browser's collection was uploaded to your account.");
+      } catch (reason) {
+        setCloud((current) => ({
+          ...current,
+          status: "error",
+          error: cloudErrorMessage(reason),
+        }));
+      } finally {
+        if (cloudSessionInFlightRef.current === userId) {
+          cloudSessionInFlightRef.current = null;
+        }
+      }
+    },
+    [applyRemoteCloud, pushToast],
+  );
+
+  useEffect(() => {
+    if (!isCloudConfigured) {
+      setCloud(INITIAL_CLOUD_STATE);
+      return;
+    }
+    let active = true;
+    const applySession = async (
+      session: Awaited<ReturnType<typeof getCloudSession>>,
+    ) => {
+      if (!active) return;
+      if (session) {
+        await loadSessionCloud(session);
+        return;
+      }
+      cloudHydratedRef.current = false;
+      cloudRevisionRef.current = null;
+      cloudUserIdRef.current = null;
+      cloudSessionInFlightRef.current = null;
+      setCloud((current) => ({
+        ...INITIAL_CLOUD_STATE,
+        configured: true,
+        authReady: true,
+        status: current.status === "error" ? "error" : "signed-out",
+        error: current.status === "error" ? current.error : null,
+      }));
+    };
+
+    void getCloudSession()
+      .then(applySession)
+      .catch((reason) =>
+        active &&
+        setCloud((current) => ({
+          ...current,
+          authReady: true,
+          status: "error",
+          error: cloudErrorMessage(reason),
+        })),
+      );
+    const unsubscribe = subscribeToCloudSession((session, event) => {
+      if (event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
+      void applySession(session);
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [loadSessionCloud]);
+
+  const commitCloudData = useCallback(async (snapshot: AppData) => {
+    const userId = cloudUserIdRef.current;
+    const baseRevision = cloudRevisionRef.current;
+    if (!userId || baseRevision === null || !cloudHydratedRef.current) {
+      throw new Error("Sign in to sync your collection.");
+    }
+
+    setCloud((current) => ({ ...current, status: "saving", error: null }));
+    try {
+      let candidate = snapshot;
+      let result = await saveCloudCollection(
+        candidate,
+        baseRevision,
+        cloudClientIdRef.current,
+      );
+      if (!result.saved) {
+        const remote = await loadCloudCollection(userId);
+        if (!remote) throw new Error("A cloud sync conflict could not be resolved.");
+        candidate = mergeCloudData(candidate, normalizeAppData(remote.data));
+        result = await saveCloudCollection(
+          candidate,
+          remote.revision,
+          cloudClientIdRef.current,
+        );
+        if (!result.saved) {
+          throw new Error("The cloud changed again. Press Sync now to retry.");
+        }
+        setData(candidate);
+      }
+
+      cloudRevisionRef.current = result.revision;
+      cloudLastSavedRef.current = JSON.stringify(candidate);
+      const syncedAt = new Date().toISOString();
+      setCloud((current) => ({
+        ...current,
+        status: "synced",
+        lastSyncedAt: syncedAt,
+        error: null,
+      }));
+      return candidate;
+    } catch (reason) {
+      setCloud((current) => ({
+        ...current,
+        status: "error",
+        error: cloudErrorMessage(reason),
+      }));
+      throw reason;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      !cloudHydratedRef.current ||
+      !cloud.email ||
+      cloudRevisionRef.current === null
+    ) {
+      return;
+    }
+    const payload = JSON.stringify(data);
+    if (payload === cloudLastSavedRef.current) return;
+    const snapshot = data;
+    const timeout = window.setTimeout(() => {
+      if (JSON.stringify(snapshot) === cloudLastSavedRef.current) return;
+      void commitCloudData(snapshot).catch(() => undefined);
+    }, 700);
+    return () => window.clearTimeout(timeout);
+  }, [cloud.email, commitCloudData, data]);
+
+  useEffect(() => {
     const handleHashChange = () => setPage(initialPage());
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  useEffect(() => {
+    setFilters((current) =>
+      current.language === data.preferences.catalogLanguage
+        ? current
+        : { ...current, language: data.preferences.catalogLanguage, setId: "all" },
+    );
+  }, [data.preferences.catalogLanguage]);
+
+  useEffect(() => {
+    if (passwordRecovery) setSettingsOpen(true);
+  }, [passwordRecovery]);
 
   const navigate = useCallback((nextPage: PageName) => {
     setPage(nextPage);
@@ -207,30 +478,42 @@ export default function App() {
     [ensureDetailMetadata, pushToast],
   );
 
-  const removeCard = useCallback((card: CatalogCard) => {
-    setData((current) => decrementCardCopy(current, card.key));
-  }, []);
+  const removeCard = useCallback(
+    (card: CatalogCard) => {
+      setData((current) =>
+        catalog
+          ? decrementCardGroup(current, catalog.cards, card.groupKey)
+          : decrementCardCopy(current, card.key),
+      );
+    },
+    [catalog],
+  );
 
   const wishlistCard = useCallback(
     (card: CatalogCard) => {
-      const adding = !data.wishlist.includes(card.key);
-      setData((current) => toggleWishlist(current, card.key));
+      const variants = catalog ? getLanguageVariants(catalog.cards, card) : [card];
+      const adding = !variants.some((variant) => data.wishlist.includes(variant.key));
+      setData((current) =>
+        catalog
+          ? toggleWishlistGroup(current, catalog.cards, card.groupKey, card.key)
+          : toggleWishlist(current, card.key),
+      );
       pushToast(adding ? `${card.name} added to your wishlist.` : `${card.name} removed from your wishlist.`);
     },
-    [data.wishlist, pushToast],
+    [catalog, data.wishlist, pushToast],
   );
 
   const openSet = useCallback(
     (set: CatalogSet) => {
       setFilters({
         ...DEFAULT_FILTERS,
-        language: set.language,
+        language: data.preferences.catalogLanguage,
         setId: set.key,
         sort: "number-asc",
       });
       navigate("cards");
     },
-    [navigate],
+    [data.preferences.catalogLanguage, navigate],
   );
 
   const randomCard = useCallback(() => {
@@ -255,7 +538,9 @@ export default function App() {
       pushToast("List updated.");
     } else {
       const id = crypto.randomUUID();
-      const pendingKey = listEditor?.pendingCard?.key;
+      const pendingKeys =
+        listEditor?.pendingCards?.map((card) => card.key) ??
+        (listEditor?.pendingCard ? [listEditor.pendingCard.key] : []);
       setData((current) => ({
         ...current,
         lists: [
@@ -263,13 +548,17 @@ export default function App() {
           {
             id,
             ...values,
-            cardKeys: pendingKey ? [pendingKey] : [],
+            cardKeys: [...new Set(pendingKeys)],
             createdAt: now,
             updatedAt: now,
           },
         ],
       }));
-      pushToast(pendingKey ? "List created and card added." : "List created.");
+      pushToast(
+        pendingKeys.length
+          ? `List created and ${pendingKeys.length} card${pendingKeys.length === 1 ? "" : "s"} added.`
+          : "List created.",
+      );
     }
     setListEditor(null);
   };
@@ -281,6 +570,97 @@ export default function App() {
       lists: current.lists.filter((item) => item.id !== list.id),
     }));
     pushToast("List deleted.");
+  };
+
+  const bulkWishlist = (cards: CatalogCard[], add: boolean) => {
+    if (!catalog || cards.length === 0) return;
+    const cardsByKey = new Map(catalog.cards.map((card) => [card.key, card]));
+    const selectedGroups = new Set(cards.map((card) => card.groupKey));
+    if (add) {
+      const existingGroups = new Set(
+        data.wishlist.map((key) => cardsByKey.get(key)?.groupKey ?? key),
+      );
+      const additions = cards
+        .filter(
+          (card, index, list) =>
+            !existingGroups.has(card.groupKey) &&
+            list.findIndex((item) => item.groupKey === card.groupKey) === index,
+        )
+        .map((card) => card.key);
+      setData({
+        ...data,
+        wishlist: [...new Set([...data.wishlist, ...additions])],
+      });
+      pushToast(
+        `${additions.length} card${additions.length === 1 ? "" : "s"} added to your wishlist.`,
+      );
+    } else {
+      const nextWishlist = data.wishlist.filter((key) => {
+        const groupKey = cardsByKey.get(key)?.groupKey ?? key;
+        return !selectedGroups.has(groupKey);
+      });
+      const removed = data.wishlist.length - nextWishlist.length;
+      setData({ ...data, wishlist: nextWishlist });
+      pushToast(
+        `${removed} card${removed === 1 ? "" : "s"} removed from your wishlist.`,
+      );
+    }
+  };
+
+  const bulkCollection = (cards: CatalogCard[]) => {
+    if (!catalog || cards.length === 0) return;
+    const cardsByKey = new Map(catalog.cards.map((card) => [card.key, card]));
+    const ownedGroups = new Set(
+      data.collection.map((copy) => getStoredCopyGroupKey(copy, cardsByKey)),
+    );
+    const additions = cards.filter(
+      (card, index, list) =>
+        !ownedGroups.has(card.groupKey) &&
+        list.findIndex((item) => item.groupKey === card.groupKey) === index,
+    );
+    let next = data;
+    for (const card of additions) next = addCardCopy(next, card);
+    setData(next);
+    pushToast(
+      additions.length
+        ? `${additions.length} new card${additions.length === 1 ? "" : "s"} added to your collection.`
+        : "All selected cards are already in your collection.",
+    );
+  };
+
+  const addBulkCardsToList = (listId: string, cards: CatalogCard[]) => {
+    if (!catalog) return;
+    const cardsByKey = new Map(catalog.cards.map((card) => [card.key, card]));
+    const targetList = data.lists.find((list) => list.id === listId);
+    const existingGroups = new Set(
+      targetList?.cardKeys.map(
+        (key) => cardsByKey.get(key)?.groupKey ?? key,
+      ) ?? [],
+    );
+    const additions = cards.filter(
+      (card, index, list) =>
+        !existingGroups.has(card.groupKey) &&
+        list.findIndex((item) => item.groupKey === card.groupKey) === index,
+    );
+    setData({
+      ...data,
+      lists: data.lists.map((list) =>
+        list.id === listId
+          ? {
+              ...list,
+              cardKeys: [
+                ...list.cardKeys,
+                ...additions.map((card) => card.key),
+              ],
+              updatedAt: new Date().toISOString(),
+            }
+          : list,
+      ),
+    });
+    setBulkListCards(null);
+    pushToast(
+      `${additions.length} card${additions.length === 1 ? "" : "s"} added to ${targetList?.name ?? "the list"}.`,
+    );
   };
 
   const exportBackup = () => {
@@ -315,10 +695,57 @@ export default function App() {
     );
   };
 
+  const cloudSignIn = async (email: string, password: string) => {
+    await signInToCloud(email, password);
+  };
+
+  const cloudSignUp = async (email: string, password: string) => {
+    const hasSession = await signUpForCloud(email, password);
+    if (!hasSession) {
+      setCloud((current) => ({
+        ...current,
+        status: "signed-out",
+        message: "Check your email to confirm the account.",
+      }));
+    }
+  };
+
+  const cloudSignOut = async () => {
+    await signOutOfCloud();
+    cloudHydratedRef.current = false;
+    cloudRevisionRef.current = null;
+    cloudUserIdRef.current = null;
+    setCloud((current) => ({
+      ...current,
+      status: "signed-out",
+      email: null,
+      lastSyncedAt: null,
+      error: null,
+      message: "Signed out. This browser still keeps a local copy.",
+    }));
+  };
+
+  const cloudPasswordReset = async (email: string) => {
+    await requestCloudPasswordReset(email);
+  };
+
+  const cloudUpdatePassword = async (password: string) => {
+    await updateCloudPassword(password);
+    setPasswordRecovery(false);
+    pushToast("Password updated.");
+  };
+
+  const cloudSyncNow = async () => {
+    await commitCloudData(dataRef.current);
+  };
+
   const activeCardDetail = activeCard ? (
     <CardDetailModal
       card={activeCard}
       data={data}
+      languageVariants={
+        catalog ? getLanguageVariants(catalog.cards, activeCard) : [activeCard]
+      }
       onClose={() => setActiveCard(null)}
       onAdd={(options) => {
         setData((current) => addCardCopy(current, activeCard, options));
@@ -328,9 +755,20 @@ export default function App() {
       onWishlist={() => wishlistCard(activeCard)}
       onDataChange={setData}
       onChangeList={(listId) => {
-        setData((current) => toggleListCard(current, listId, activeCard.key));
+        setData((current) =>
+          catalog
+            ? toggleListCardGroup(
+                current,
+                listId,
+                catalog.cards,
+                activeCard.groupKey,
+                activeCard.key,
+              )
+            : toggleListCard(current, listId, activeCard.key),
+        );
       }}
       onCreateList={() => setListEditor({ pendingCard: activeCard })}
+      onSwitchLanguage={setActiveCard}
     />
   ) : null;
 
@@ -379,15 +817,38 @@ export default function App() {
             />
           </form>
           <div className="header-actions">
-            <div className={`sync-status ${syncing ? "syncing" : ""}`} title="Catalog sync status">
+            <div
+              className={`sync-status ${syncing || cloud.status === "saving" ? "syncing" : ""} ${cloud.email ? "cloud-connected" : ""}`}
+              title={
+                cloud.email
+                  ? `Cloud account: ${cloud.email}`
+                  : isCloudConfigured
+                    ? "Local collection · cloud account available in settings"
+                    : "Local collection"
+              }
+            >
               {syncing ? (
                 <RefreshCw size={16} className="spin" />
+              ) : cloud.status === "saving" ? (
+                <RefreshCw size={16} className="spin" />
+              ) : cloud.email ? (
+                <Cloud size={16} />
               ) : catalog ? (
                 <Cloud size={16} />
               ) : (
                 <CloudOff size={16} />
               )}
-              <span>{syncing ? `${Math.round(syncProgress)}%` : catalog ? "Local" : "Offline"}</span>
+              <span>
+                {syncing
+                  ? `${Math.round(syncProgress)}%`
+                  : cloud.status === "saving"
+                    ? "Saving"
+                    : cloud.email
+                      ? "Cloud"
+                      : catalog
+                        ? "Local"
+                        : "Offline"}
+              </span>
             </div>
             <button
               type="button"
@@ -492,7 +953,18 @@ export default function App() {
                 catalog={catalog}
                 data={data}
                 filters={filters}
-                setFilters={setFilters}
+                setFilters={(nextFilters) => {
+                  setFilters(nextFilters);
+                  if (nextFilters.language !== data.preferences.catalogLanguage) {
+                    setData((current) => ({
+                      ...current,
+                      preferences: {
+                        ...current.preferences,
+                        catalogLanguage: nextFilters.language,
+                      },
+                    }));
+                  }
+                }}
                 view={view}
                 setView={setView}
                 onOpenCard={setActiveCard}
@@ -500,12 +972,25 @@ export default function App() {
                 onRemove={removeCard}
                 onWishlist={wishlistCard}
                 onManageLists={setPickerCard}
+                onBulkWishlist={bulkWishlist}
+                onBulkCollection={bulkCollection}
+                onBulkList={setBulkListCards}
                 onSync={() => void fetchCatalog(true)}
                 syncing={syncing}
               />
             )}
             {page === "sets" && (
-              <SetsPage catalog={catalog} data={data} onOpenSet={openSet} />
+              <SetsPage
+                catalog={catalog}
+                data={data}
+                onOpenSet={openSet}
+                onLanguageChange={(catalogLanguage) => {
+                  setData((current) => ({
+                    ...current,
+                    preferences: { ...current.preferences, catalogLanguage },
+                  }));
+                }}
+              />
             )}
             {page === "lists" && (
               <ListsPage
@@ -548,10 +1033,25 @@ export default function App() {
       {pickerCard && (
         <ListPickerDialog
           card={pickerCard}
+          variantKeys={
+            catalog
+              ? getLanguageVariants(catalog.cards, pickerCard).map((card) => card.key)
+              : [pickerCard.key]
+          }
           data={data}
           onClose={() => setPickerCard(null)}
           onToggle={(listId) =>
-            setData((current) => toggleListCard(current, listId, pickerCard.key))
+            setData((current) =>
+              catalog
+                ? toggleListCardGroup(
+                    current,
+                    listId,
+                    catalog.cards,
+                    pickerCard.groupKey,
+                    pickerCard.key,
+                  )
+                : toggleListCard(current, listId, pickerCard.key),
+            )
           }
           onCreate={() => {
             const card = pickerCard;
@@ -567,6 +1067,18 @@ export default function App() {
           onSave={createOrUpdateList}
         />
       )}
+      {bulkListCards && (
+        <BulkListDialog
+          count={bulkListCards.length}
+          lists={data.lists}
+          onClose={() => setBulkListCards(null)}
+          onAdd={(listId) => addBulkCardsToList(listId, bulkListCards)}
+          onCreate={() => {
+            setListEditor({ pendingCards: bulkListCards });
+            setBulkListCards(null);
+          }}
+        />
+      )}
       {settingsOpen && catalog && (
         <SettingsDialog
           data={data}
@@ -576,6 +1088,14 @@ export default function App() {
           onSync={() => void fetchCatalog(true)}
           onBackup={exportBackup}
           onImport={importBackup}
+          cloud={cloud}
+          onCloudSignIn={cloudSignIn}
+          onCloudSignUp={cloudSignUp}
+          onCloudSignOut={cloudSignOut}
+          onCloudPasswordReset={cloudPasswordReset}
+          passwordRecovery={passwordRecovery}
+          onCloudUpdatePassword={cloudUpdatePassword}
+          onCloudSync={cloudSyncNow}
           syncing={syncing}
         />
       )}

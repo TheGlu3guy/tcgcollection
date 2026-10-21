@@ -1,4 +1,5 @@
 import {
+  ArrowUpRight,
   Check,
   Heart,
   ListPlus,
@@ -7,7 +8,8 @@ import {
 } from "lucide-react";
 import { LANGUAGE_BY_CODE } from "../lib/constants";
 import { imageUrl } from "../lib/catalog";
-import type { CatalogCard } from "../types";
+import { formatCurrency } from "../lib/collection";
+import type { CatalogCard, MarketPrices } from "../types";
 import { CardImage } from "./Shared";
 
 interface CardTileProps {
@@ -15,7 +17,12 @@ interface CardTileProps {
   quantity: number;
   wishlisted: boolean;
   listCount: number;
+  prices?: MarketPrices | null;
+  priceLoading: boolean;
+  selectionMode: boolean;
+  selected: boolean;
   view: "grid" | "list";
+  onToggleSelection: () => void;
   onOpen: () => void;
   onAdd: () => void;
   onRemove: () => void;
@@ -23,12 +30,64 @@ interface CardTileProps {
   onManageLists: () => void;
 }
 
+function formatPrice(price: MarketPrices["tcgplayer"] | undefined): string {
+  return price
+    ? formatCurrency(
+        price.amount,
+        price.currency,
+        price.currency === "USD" ? "en-US" : undefined,
+      )
+    : "—";
+}
+
+function MarketplacePrice({
+  cardName,
+  marketplace,
+  price,
+  url,
+}: {
+  cardName: string;
+  marketplace: "TCGplayer" | "Cardmarket";
+  price: MarketPrices["tcgplayer"] | undefined;
+  url?: string;
+}) {
+  const priceText = formatPrice(price);
+  const content = (
+    <>
+      <span className={`price-source ${marketplace.toLocaleLowerCase()}`}>
+        {marketplace}
+      </span>
+      <strong>{priceText}</strong>
+      {url && <ArrowUpRight className="price-link-icon" size={10} />}
+      {url && <span className="sr-only"> for {cardName}, opens in new tab</span>}
+    </>
+  );
+
+  return url ? (
+    <a
+      className="price-market-link"
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {content}
+    </a>
+  ) : (
+    <div className={price ? "" : "empty"}>{content}</div>
+  );
+}
+
 export function CardTile({
   card,
   quantity,
   wishlisted,
   listCount,
+  prices,
+  priceLoading,
+  selectionMode,
+  selected,
   view,
+  onToggleSelection,
   onOpen,
   onAdd,
   onRemove,
@@ -36,19 +95,35 @@ export function CardTile({
   onManageLists,
 }: CardTileProps) {
   const language = LANGUAGE_BY_CODE[card.language];
-  const image = imageUrl(card.image);
+  const image = imageUrl(card.image) ?? prices?.imageUrl;
   const viewLabel = image
     ? `View ${card.name}`
     : `View ${card.name}, image unavailable`;
+  const imageAccessibleLabel =
+    quantity > 0 ? `${viewLabel}, ${quantity} owned` : viewLabel;
+  const listActionLabel =
+    listCount > 0 ? `Manage lists, ${listCount} selected` : "Manage lists";
+  const openOrSelect = selectionMode ? onToggleSelection : onOpen;
 
   if (view === "list") {
     return (
-      <article className="card-row">
-        <button className="card-row-image" type="button" onClick={onOpen} aria-label={viewLabel}>
+      <article className={`card-row ${selectionMode ? "selection-mode" : ""} ${selected ? "selected" : ""}`}>
+        <button
+          className="card-row-image"
+          type="button"
+          onClick={openOrSelect}
+          aria-label={selectionMode ? `${selected ? "Deselect" : "Select"} ${card.name}` : imageAccessibleLabel}
+          aria-pressed={selectionMode ? selected : undefined}
+        >
           <CardImage src={image} alt={card.name} />
+          {selectionMode && (
+            <span className="row-selection-mark">
+              {selected && <Check size={14} />}
+            </span>
+          )}
         </button>
         <div className="card-row-main">
-          <button className="card-name-button" type="button" onClick={onOpen}>
+          <button className="card-name-button" type="button" onClick={openOrSelect}>
             <strong>{card.name}</strong>
           </button>
           <span>
@@ -60,7 +135,21 @@ export function CardTile({
           <span aria-hidden="true">{language.flag}</span>
           {language.shortLabel}
         </div>
-        <div className="card-row-actions">
+        <div className={`list-card-prices ${priceLoading ? "loading" : ""}`}>
+          <MarketplacePrice
+            cardName={card.name}
+            marketplace="TCGplayer"
+            price={prices?.tcgplayer}
+            url={prices?.tcgplayerUrl}
+          />
+          <MarketplacePrice
+            cardName={card.name}
+            marketplace="Cardmarket"
+            price={prices?.cardmarket}
+            url={prices?.cardmarketUrl}
+          />
+        </div>
+        {!selectionMode && <div className="card-row-actions">
           <button
             className={`icon-button ${wishlisted ? "is-active" : ""}`}
             type="button"
@@ -69,12 +158,22 @@ export function CardTile({
           >
             <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
           </button>
-          <button className="icon-button" type="button" onClick={onManageLists} aria-label="Manage lists">
+          <button
+            className="icon-button"
+            type="button"
+            onClick={onManageLists}
+            aria-label={listActionLabel}
+          >
             <ListPlus size={18} />
             {listCount > 0 && <span className="micro-badge">{listCount}</span>}
           </button>
           <div className="stepper">
-            <button type="button" onClick={onRemove} disabled={quantity === 0} aria-label="Remove one copy">
+            <button
+              type="button"
+              onClick={onRemove}
+              disabled={quantity === 0}
+              aria-label="Remove one copy"
+            >
               <Minus size={15} />
             </button>
             <span>{quantity}</span>
@@ -82,14 +181,20 @@ export function CardTile({
               <Plus size={15} />
             </button>
           </div>
-        </div>
+        </div>}
       </article>
     );
   }
 
   return (
-    <article className="card-tile">
-      <button className="card-tile-image" type="button" onClick={onOpen} aria-label={viewLabel}>
+    <article className={`card-tile ${selectionMode ? "selection-mode" : ""} ${selected ? "selected" : ""}`}>
+      <button
+        className="card-tile-image"
+        type="button"
+        onClick={openOrSelect}
+        aria-label={selectionMode ? `${selected ? "Deselect" : "Select"} ${card.name}` : imageAccessibleLabel}
+        aria-pressed={selectionMode ? selected : undefined}
+      >
         <CardImage src={image} alt={card.name} />
         {quantity > 0 && (
           <span className="owned-pill">
@@ -97,7 +202,11 @@ export function CardTile({
           </span>
         )}
       </button>
-      <div className="card-tile-overlay">
+      {selectionMode ? (
+        <span className={`card-selection-mark ${selected ? "active" : ""}`}>
+          {selected && <Check size={16} />}
+        </span>
+      ) : <div className="card-tile-overlay">
         <button
           className={`tile-action ${wishlisted ? "is-active" : ""}`}
           type="button"
@@ -106,13 +215,18 @@ export function CardTile({
         >
           <Heart size={17} fill={wishlisted ? "currentColor" : "none"} />
         </button>
-        <button className="tile-action" type="button" onClick={onManageLists} aria-label="Manage lists">
+        <button
+          className="tile-action"
+          type="button"
+          onClick={onManageLists}
+          aria-label={listActionLabel}
+        >
           <ListPlus size={17} />
           {listCount > 0 && <span className="micro-badge">{listCount}</span>}
         </button>
-      </div>
+      </div>}
       <div className="card-tile-copy">
-        <button className="card-name-button" type="button" onClick={onOpen}>
+        <button className="card-name-button" type="button" onClick={openOrSelect}>
           {card.name}
         </button>
         <div className="card-meta">
@@ -123,15 +237,34 @@ export function CardTile({
             {card.setName} · {card.localId}
           </span>
         </div>
-        <div className="card-tile-stepper">
-          <button type="button" onClick={onRemove} disabled={quantity === 0} aria-label="Remove one copy">
+        <div className={`card-prices ${priceLoading ? "loading" : ""}`}>
+          <MarketplacePrice
+            cardName={card.name}
+            marketplace="TCGplayer"
+            price={prices?.tcgplayer}
+            url={prices?.tcgplayerUrl}
+          />
+          <MarketplacePrice
+            cardName={card.name}
+            marketplace="Cardmarket"
+            price={prices?.cardmarket}
+            url={prices?.cardmarketUrl}
+          />
+        </div>
+        {!selectionMode && <div className="card-tile-stepper">
+          <button
+            type="button"
+            onClick={onRemove}
+            disabled={quantity === 0}
+            aria-label="Remove one copy"
+          >
             <Minus size={14} />
           </button>
           <span>{quantity}</span>
           <button type="button" onClick={onAdd} aria-label="Add one copy">
             <Plus size={14} />
           </button>
-        </div>
+        </div>}
       </div>
     </article>
   );

@@ -30,7 +30,9 @@ export const DEFAULT_FILTERS: CardFilters = {
   region: "all",
   language: "all",
   setId: "all",
+  artist: "",
   status: "all",
+  listId: "all",
   sort: "release-new",
 };
 
@@ -43,6 +45,7 @@ export const DEFAULT_APP_DATA: AppData = {
   preferences: {
     defaultCondition: "Near Mint",
     defaultVariant: "Unspecified",
+    catalogLanguage: "all",
     showMissingImages: true,
     collectionValueCurrency: "EUR",
   },
@@ -81,6 +84,6 @@ export const GENERATIONS = [
   { id: 9, roman: "IX", name: "Paldea", start: 906, end: 1025, accent: "#35a7b8" },
 ];
 
-export const CATALOG_VERSION = 4;
-export const CATALOG_CACHE_KEY = "tcgcollection-catalog-v4";
+export const CATALOG_VERSION = 8;
+export const CATALOG_CACHE_KEY = "tcgcollection-catalog-v8";
 export const APP_STORAGE_KEY = "tcgcollection-personal-v1";

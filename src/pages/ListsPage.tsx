@@ -15,11 +15,11 @@ import {
 import {
   formatCurrency,
   formatNumber,
-  quantityForCard,
 } from "../lib/collection";
 import { imageUrl } from "../lib/catalog";
 import type { AppData, CardList, Catalog, CatalogCard } from "../types";
 import { CardImage, EmptyState, ProgressBar } from "../components/Shared";
+import { getStoredCopyGroupKey, getVisibleCards } from "../lib/cardGroups";
 
 interface ListsPageProps {
   catalog: Catalog;
@@ -62,6 +62,23 @@ export function ListsPage({
     () => new Map(catalog.cards.map((card) => [card.key, card])),
     [catalog.cards],
   );
+  const quantityByGroup = useMemo(
+    () =>
+      data.collection.reduce<Map<string, number>>((counts, copy) => {
+        const groupKey = getStoredCopyGroupKey(copy, cardByKey);
+        counts.set(groupKey, (counts.get(groupKey) ?? 0) + copy.quantity);
+        return counts;
+      }, new Map()),
+    [cardByKey, data.collection],
+  );
+  const wishlistGroups = useMemo(
+    () =>
+      new Set(
+        data.wishlist.map((key) => cardByKey.get(key)?.groupKey ?? key),
+      ),
+    [cardByKey, data.wishlist],
+  );
+  const collectionGroupCount = quantityByGroup.size;
   const selectedCustomList = data.lists.find((list) => list.id === selected);
   const selectedKeys = new Set(
     selected === "collection"
@@ -70,9 +87,13 @@ export function ListsPage({
         ? data.wishlist
         : (selectedCustomList?.cardKeys ?? []),
   );
-  const cards = [...selectedKeys]
+  const selectedCards = [...selectedKeys]
     .map((key) => cardByKey.get(key))
-    .filter((card): card is CatalogCard => Boolean(card))
+    .filter((card): card is CatalogCard => Boolean(card));
+  const cards = getVisibleCards(
+    selectedCards,
+    data.preferences.catalogLanguage,
+  )
     .filter((card) => {
       const normalizedQuery = query.trim().toLocaleLowerCase();
       return (
@@ -149,7 +170,7 @@ export function ListsPage({
             <span className="list-nav-icon collection"><Library size={17} /></span>
             <div>
               <strong>My collection</strong>
-              <span>{new Set(data.collection.map((copy) => copy.cardKey)).size} unique</span>
+              <span>{collectionGroupCount} unique</span>
             </div>
           </button>
           <button
@@ -160,7 +181,7 @@ export function ListsPage({
             <span className="list-nav-icon wishlist"><Heart size={17} /></span>
             <div>
               <strong>Wishlist</strong>
-              <span>{data.wishlist.length} {data.wishlist.length === 1 ? "card" : "cards"}</span>
+              <span>{wishlistGroups.size} {wishlistGroups.size === 1 ? "card" : "cards"}</span>
             </div>
           </button>
 
@@ -183,7 +204,12 @@ export function ListsPage({
               <span className="custom-list-dot" style={{ background: list.color }} />
               <div>
                 <strong>{list.name}</strong>
-                <span>{list.cardKeys.length} {list.cardKeys.length === 1 ? "card" : "cards"}</span>
+                <span>
+                  {new Set(list.cardKeys.map((key) => cardByKey.get(key)?.groupKey ?? key)).size}{" "}
+                  {new Set(list.cardKeys.map((key) => cardByKey.get(key)?.groupKey ?? key)).size === 1
+                    ? "card"
+                    : "cards"}
+                </span>
               </div>
             </button>
           ))}
@@ -294,8 +320,8 @@ export function ListsPage({
           ) : (
             <div className="saved-card-grid">
               {cards.map((card) => {
-                const quantity = quantityForCard(data.collection, card.key);
-                const wishlisted = data.wishlist.includes(card.key);
+                const quantity = quantityByGroup.get(card.groupKey) ?? 0;
+                const wishlisted = wishlistGroups.has(card.groupKey);
                 return (
                   <article className="saved-card" key={card.key}>
                     <button

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   ArrowRight,
   Bookmark,
@@ -19,6 +20,7 @@ import {
 import type { AppData, Catalog, PageName } from "../types";
 import { CardImage, ProgressBar } from "../components/Shared";
 import { imageUrl } from "../lib/catalog";
+import { getVisibleCards, getVisibleSets } from "../lib/cardGroups";
 
 interface DashboardPageProps {
   catalog: Catalog;
@@ -46,15 +48,40 @@ export function DashboardPage({
 }: DashboardPageProps) {
   const stats = getCollectionStats(data, catalog.cards);
   const setProgress = getSetProgress(data, catalog.sets);
-  const recentSets = catalog.sets
-    .filter((set) => set.language === "en" && set.releaseDate)
+  const visibleCards = useMemo(
+    () => getVisibleCards(catalog.cards, data.preferences.catalogLanguage),
+    [catalog.cards, data.preferences.catalogLanguage],
+  );
+  const visibleSets = useMemo(
+    () => getVisibleSets(catalog.sets, data.preferences.catalogLanguage),
+    [catalog.sets, data.preferences.catalogLanguage],
+  );
+  const uniquePrintCount = useMemo(
+    () => getVisibleCards(catalog.cards, "all").length,
+    [catalog.cards],
+  );
+  const uniqueSetCount = useMemo(
+    () => getVisibleSets(catalog.sets, "all").length,
+    [catalog.sets],
+  );
+  const recentSets = visibleSets
+    .filter((set) => set.releaseDate)
     .slice(0, 6);
-  const activeSets = [...catalog.sets]
+  const activeSets = [...visibleSets]
     .filter((set) => setProgress.get(set.key))
     .sort((a, b) => (setProgress.get(b.key) ?? 0) - (setProgress.get(a.key) ?? 0))
     .slice(0, 4);
-  const wishlistCards = catalog.cards.filter((card) => data.wishlist.includes(card.key)).slice(0, 5);
-  const heroCard = catalog.cards.find((card) => card.image && card.language === "en");
+  const wishlistGroups = new Set(
+    data.wishlist.map(
+      (key) => catalog.cards.find((card) => card.key === key)?.groupKey ?? key,
+    ),
+  );
+  const wishlistCards = visibleCards
+    .filter((card) => wishlistGroups.has(card.groupKey))
+    .slice(0, 5);
+  const heroCard =
+    visibleCards.find((card) => card.image && card.language === "en") ??
+    visibleCards.find((card) => card.image);
   const languageEntries = Object.entries(stats.languageCounts).sort((a, b) => b[1] - a[1]);
 
   return (
@@ -67,8 +94,9 @@ export function DashboardPage({
           </span>
           <h1>{greeting()}, collector.</h1>
           <p>
-            Search more than {formatNumber(catalog.cards.length)} prints across{" "}
-            {formatNumber(catalog.sets.length)} sets worldwide. Everything you add stays in this browser.
+            Search more than {formatNumber(uniquePrintCount)}{" "}
+            unique prints across {formatNumber(uniqueSetCount)} sets
+            worldwide. Each card is shown once with its available languages.
           </p>
           <div className="hero-actions">
             <button className="primary-button" type="button" onClick={() => onNavigate("cards")}>

@@ -1,11 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  CirclePlus,
   Check,
   ChevronDown,
   Filter,
   Grid2X2,
   Heart,
+  HeartOff,
   LayoutList,
+  ListPlus,
+  MousePointer2,
   RefreshCw,
   Search,
   SlidersHorizontal,
@@ -15,8 +19,12 @@ import { LANGUAGE_BY_CODE, LANGUAGES, REGIONS } from "../lib/constants";
 import {
   filterCards,
   formatNumber,
-  quantityForCard,
 } from "../lib/collection";
+import {
+  getStoredCopyGroupKey,
+  getVisibleCards,
+  getVisibleSets,
+} from "../lib/cardGroups";
 import type {
   AppData,
   CardFilters,
@@ -25,10 +33,12 @@ import type {
   Catalog,
   CatalogCard,
   LanguageCode,
+  MarketPrices,
   Region,
 } from "../types";
 import { CardTile } from "../components/CardTile";
 import { EmptyState } from "../components/Shared";
+import { loadMarketPrices } from "../lib/catalog";
 
 interface CardsPageProps {
   catalog: Catalog;
@@ -42,6 +52,9 @@ interface CardsPageProps {
   onRemove: (card: CatalogCard) => void;
   onWishlist: (card: CatalogCard) => void;
   onManageLists: (card: CatalogCard) => void;
+  onBulkWishlist: (cards: CatalogCard[], add: boolean) => void;
+  onBulkCollection: (cards: CatalogCard[]) => void;
+  onBulkList: (cards: CatalogCard[]) => void;
   onSync: () => void;
   syncing: boolean;
 }
@@ -60,35 +73,129 @@ export function CardsPage({
   onRemove,
   onWishlist,
   onManageLists,
+  onBulkWishlist,
+  onBulkCollection,
+  onBulkList,
   onSync,
   syncing,
 }: CardsPageProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [prices, setPrices] = useState<Record<string, MarketPrices>>({});
+  const [pricingLoading, setPricingLoading] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const filteredCards = useMemo(
     () => filterCards(catalog.cards, filters, data),
     [catalog.cards, data, filters],
   );
+  const cardsByKey = useMemo(
+    () => new Map(catalog.cards.map((card) => [card.key, card])),
+    [catalog.cards],
+  );
+  const quantityByGroup = useMemo(
+    () =>
+      data.collection.reduce<Map<string, number>>((counts, copy) => {
+        const groupKey = getStoredCopyGroupKey(copy, cardsByKey);
+        counts.set(groupKey, (counts.get(groupKey) ?? 0) + copy.quantity);
+        return counts;
+      }, new Map()),
+    [cardsByKey, data.collection],
+  );
+  const wishlistGroups = useMemo(
+    () =>
+      new Set(
+        data.wishlist.map((key) => cardsByKey.get(key)?.groupKey ?? key),
+      ),
+    [cardsByKey, data.wishlist],
+  );
+  const listCountByGroup = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const list of data.lists) {
+      for (const groupKey of new Set(
+        list.cardKeys.map((key) => cardsByKey.get(key)?.groupKey ?? key),
+      )) {
+        counts.set(groupKey, (counts.get(groupKey) ?? 0) + 1);
+      }
+    }
+    return counts;
+  }, [cardsByKey, data.lists]);
+  const uniqueCardCount = useMemo(
+    () => getVisibleCards(catalog.cards, filters.language).length,
+    [catalog.cards, filters.language],
+  );
   const setsForLanguage = useMemo(
     () =>
-      catalog.sets
-        .filter((set) => filters.language === "all" || set.language === filters.language)
+      getVisibleSets(catalog.sets, filters.language)
         .filter((set) => filters.region === "all" || set.region === filters.region)
         .sort((a, b) => (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "")),
     [catalog.sets, filters.language, filters.region],
   );
   const visibleCards = filteredCards.slice(0, visibleCount);
+  const selectedCards = useMemo(
+    () => filteredCards.filter((card) => selectedKeys.has(card.key)),
+    [filteredCards, selectedKeys],
+  );
+  const allFilteredSelected =
+    filteredCards.length > 0 && selectedCards.length === filteredCards.length;
+  const visiblePriceSignature = visibleCards.map((card) => card.key).join("|");
   const activeFilterCount = [
     filters.region !== "all",
     filters.language !== "all",
     filters.setId !== "all",
+    filters.artist.trim() !== "",
     filters.status !== "all",
+    filters.listId !== "all",
   ].filter(Boolean).length;
 
   const updateFilters = (patch: Partial<CardFilters>) => {
     setFilters({ ...filters, ...patch });
     setVisibleCount(PAGE_SIZE);
+    setSelectedKeys(new Set());
   };
+
+  const toggleSelected = (cardKey: string) => {
+    setSelectedKeys((current) => {
+      const next = new Set(current);
+      if (next.has(cardKey)) next.delete(cardKey);
+      else next.add(cardKey);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedKeys(
+      allFilteredSelected
+        ? new Set()
+        : new Set(filteredCards.map((card) => card.key)),
+    );
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const batch = visibleCards;
+    const batchKeys = batch.map((card) => card.key);
+    setPricingLoading((current) => new Set([...current, ...batchKeys]));
+    void loadMarketPrices(
+      batch,
+      (cardKey, price) => {
+        setPrices((current) => ({ ...current, [cardKey]: price }));
+        setPricingLoading((current) => {
+          const next = new Set(current);
+          next.delete(cardKey);
+          return next;
+        });
+      },
+      controller.signal,
+    ).finally(() => {
+      setPricingLoading((current) => {
+        const next = new Set(current);
+        for (const key of batchKeys) next.delete(key);
+        return next;
+      });
+    });
+    return () => controller.abort();
+  }, [visiblePriceSignature]);
 
   return (
     <div className="page-stack catalog-page">
@@ -97,7 +204,10 @@ export function CardsPage({
           <span className="eyebrow">Multilingual database</span>
           <h1>Cards</h1>
           <p>
-            {formatNumber(catalog.cards.length)} regional card records with images and live card details.
+            {formatNumber(uniqueCardCount)} unique prints shown once.{" "}
+            {filters.language === "all"
+              ? "English is preferred, with another available language used as fallback."
+              : `Showing the ${LANGUAGE_BY_CODE[filters.language].label} version where available.`}
           </p>
         </div>
         <button className="secondary-button" type="button" onClick={onSync} disabled={syncing}>
@@ -149,6 +259,62 @@ export function CardsPage({
         </label>
       </section>
 
+      <section className="collection-state-bar">
+        <div className="filter-group status-filter">
+          <span>Collection</span>
+          <div className="segmented-wrap">
+            <button
+              type="button"
+              className={filters.status === "all" ? "active" : ""}
+              onClick={() => updateFilters({ status: "all" })}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className={filters.status === "collection" ? "active" : ""}
+              onClick={() => updateFilters({ status: "collection" })}
+            >
+              <Check size={13} /> In collection
+            </button>
+            <button
+              type="button"
+              className={filters.status === "not-collection" ? "active" : ""}
+              onClick={() => updateFilters({ status: "not-collection" })}
+            >
+              <X size={13} /> Not in collection
+            </button>
+          </div>
+        </div>
+        <label className="list-state-filter">
+          <span>In list</span>
+          <div className="select-wrap">
+            <select
+              value={filters.listId}
+              onChange={(event) => updateFilters({ listId: event.target.value })}
+            >
+              <option value="all">No list filter</option>
+              <option value="wishlist">Wishlist</option>
+              {data.lists.map((list) => (
+                <option key={list.id} value={list.id}>
+                  {list.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} />
+          </div>
+        </label>
+        {(filters.status !== "all" || filters.listId !== "all") && (
+          <button
+            type="button"
+            className="clear-state-filter"
+            onClick={() => updateFilters({ status: "all", listId: "all" })}
+          >
+            Clear
+          </button>
+        )}
+      </section>
+
       {advancedOpen && (
         <section className="advanced-filters">
           <div className="filter-group">
@@ -186,7 +352,7 @@ export function CardsPage({
                     })
                   }
                 >
-                  <option value="all">All languages</option>
+                  <option value="all">All languages · English first</option>
                   {LANGUAGES.filter(
                     (language) => filters.region === "all" || language.region === filters.region,
                   ).map((language) => (
@@ -223,39 +389,35 @@ export function CardsPage({
                 <ChevronDown size={14} />
               </div>
             </label>
-            <div className="filter-group status-filter">
-              <span>Show</span>
-              <div className="segmented-wrap">
-                <button
-                  type="button"
-                  className={filters.status === "all" ? "active" : ""}
-                  onClick={() => updateFilters({ status: "all" })}
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  className={filters.status === "collection" ? "active" : ""}
-                  onClick={() => updateFilters({ status: "collection" })}
-                >
-                  <Check size={13} /> Collection
-                </button>
-                <button
-                  type="button"
-                  className={filters.status === "wishlist" ? "active" : ""}
-                  onClick={() => updateFilters({ status: "wishlist" })}
-                >
-                  <Heart size={13} /> Wishlist
-                </button>
-              </div>
-            </div>
+            <label className="artist-filter">
+              <span>Artist</span>
+              <input
+                type="search"
+                value={filters.artist}
+                onChange={(event) => updateFilters({ artist: event.target.value })}
+                placeholder="Start typing an artist…"
+                list="artist-options"
+              />
+              <datalist id="artist-options">
+                {catalog.artists.map((artist) => (
+                  <option value={artist} key={artist} />
+                ))}
+              </datalist>
+            </label>
           </div>
           {activeFilterCount > 0 && (
             <button
               type="button"
               className="clear-filters"
               onClick={() =>
-                updateFilters({ region: "all", language: "all", setId: "all", status: "all" })
+                updateFilters({
+                  region: "all",
+                  language: "all",
+                  setId: "all",
+                  artist: "",
+                  status: "all",
+                  listId: "all",
+                })
               }
             >
               <X size={13} /> Clear filters
@@ -273,8 +435,34 @@ export function CardsPage({
               {catalog.sets.find((set) => set.key === filters.setId)?.name}
             </span>
           )}
+          {filters.artist.trim() && (
+            <span className="active-set-label">
+              Artist: {filters.artist.trim()}
+            </span>
+          )}
+          {filters.listId !== "all" && (
+            <span className="active-set-label">
+              List:{" "}
+              {filters.listId === "wishlist"
+                ? "Wishlist"
+                : data.lists.find((list) => list.id === filters.listId)?.name ??
+                  "Unknown list"}
+            </span>
+          )}
         </div>
-        <div className="view-switcher">
+        <div className="catalog-toolbar-actions">
+          <button
+            type="button"
+            className={`selection-trigger ${selectionMode ? "active" : ""}`}
+            onClick={() => {
+              setSelectionMode((active) => !active);
+              setSelectedKeys(new Set());
+            }}
+          >
+            <MousePointer2 size={15} />
+            {selectionMode ? "Exit selection" : "Select cards"}
+          </button>
+          <div className="view-switcher">
           <button
             type="button"
             className={view === "grid" ? "active" : ""}
@@ -289,8 +477,79 @@ export function CardsPage({
           >
             <LayoutList size={16} /> List
           </button>
+          </div>
         </div>
       </div>
+
+      {selectionMode && (
+        <section className="bulk-toolbar" aria-label="Bulk card actions">
+          <div className="bulk-selection-summary">
+            <button
+              type="button"
+              className={`bulk-check ${allFilteredSelected ? "active" : ""}`}
+              onClick={toggleSelectAll}
+              aria-pressed={allFilteredSelected}
+              aria-label={
+                allFilteredSelected
+                  ? "Clear all selected cards"
+                  : "Select all filtered cards"
+              }
+            >
+              {allFilteredSelected && <Check size={14} />}
+            </button>
+            <div>
+              <button type="button" onClick={toggleSelectAll}>
+                {allFilteredSelected ? "Clear all" : "Select all"}
+              </button>
+              <span>
+                {formatNumber(selectedCards.length)} selected ·{" "}
+                {formatNumber(filteredCards.length)} filtered
+              </span>
+            </div>
+          </div>
+          <div className="bulk-actions">
+            <button
+              type="button"
+              onClick={() => onBulkWishlist(selectedCards, true)}
+              disabled={selectedCards.length === 0}
+            >
+              <Heart size={16} /> Add to wishlist
+            </button>
+            <button
+              type="button"
+              onClick={() => onBulkWishlist(selectedCards, false)}
+              disabled={selectedCards.length === 0}
+            >
+              <HeartOff size={16} /> Remove wishlist
+            </button>
+            <button
+              type="button"
+              onClick={() => onBulkCollection(selectedCards)}
+              disabled={selectedCards.length === 0}
+            >
+              <CirclePlus size={16} /> Add to collection
+            </button>
+            <button
+              type="button"
+              onClick={() => onBulkList(selectedCards)}
+              disabled={selectedCards.length === 0}
+            >
+              <ListPlus size={16} /> Add to list
+            </button>
+            <button
+              type="button"
+              className="bulk-close"
+              onClick={() => {
+                setSelectionMode(false);
+                setSelectedKeys(new Set());
+              }}
+              aria-label="Exit selection mode"
+            >
+              <X size={17} />
+            </button>
+          </div>
+        </section>
+      )}
 
       {visibleCards.length === 0 ? (
         <section className="surface">
@@ -308,7 +567,9 @@ export function CardsPage({
                     region: "all",
                     language: "all",
                     setId: "all",
+                    artist: "",
                     status: "all",
+                    listId: "all",
                   })
                 }
               >
@@ -326,10 +587,15 @@ export function CardsPage({
               <CardTile
                 key={card.key}
                 card={card}
-                quantity={quantityForCard(data.collection, card.key)}
-                wishlisted={data.wishlist.includes(card.key)}
-                listCount={data.lists.filter((list) => list.cardKeys.includes(card.key)).length}
+                quantity={quantityByGroup.get(card.groupKey) ?? 0}
+                wishlisted={wishlistGroups.has(card.groupKey)}
+                listCount={listCountByGroup.get(card.groupKey) ?? 0}
+                prices={prices[card.key]}
+                priceLoading={pricingLoading.has(card.key)}
                 view={view}
+                selectionMode={selectionMode}
+                selected={selectedKeys.has(card.key)}
+                onToggleSelection={() => toggleSelected(card.key)}
                 onOpen={() => onOpenCard(card)}
                 onAdd={() => onAdd(card)}
                 onRemove={() => onRemove(card)}

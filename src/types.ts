@@ -66,6 +66,7 @@ export interface CatalogSet {
 
 export interface CatalogCard {
   key: string;
+  groupKey: string;
   id: string;
   localId: string;
   name: string;
@@ -80,6 +81,7 @@ export interface CatalogCard {
   setReleaseDate?: string;
   setSeries: string;
   setTotal: number;
+  artist?: string;
 }
 
 export interface Catalog {
@@ -87,10 +89,11 @@ export interface Catalog {
   fetchedAt: string;
   cards: CatalogCard[];
   sets: CatalogSet[];
+  artists: string[];
   failedLanguages: { language: LanguageCode; message: string }[];
 }
 
-export type SearchStatus = "all" | "collection" | "wishlist";
+export type SearchStatus = "all" | "collection" | "not-collection";
 export type CardSort =
   | "release-new"
   | "release-old"
@@ -105,7 +108,9 @@ export interface CardFilters {
   region: "all" | Region;
   language: "all" | LanguageCode;
   setId: "all" | string;
+  artist: string;
   status: SearchStatus;
+  listId: "all" | "wishlist" | string;
   sort: CardSort;
 }
 
@@ -145,6 +150,7 @@ export interface CardList {
 export interface AppPreferences {
   defaultCondition: string;
   defaultVariant: string;
+  catalogLanguage: "all" | LanguageCode;
   showMissingImages: boolean;
   collectionValueCurrency: string;
 }
@@ -175,7 +181,16 @@ export interface PriceSnapshot {
   amount: number;
   currency: string;
   source: string;
+  url?: string;
   updatedAt?: string;
+}
+
+export interface MarketPrices {
+  tcgplayer: PriceSnapshot | null;
+  cardmarket: PriceSnapshot | null;
+  tcgplayerUrl?: string;
+  cardmarketUrl?: string;
+  imageUrl?: string;
 }
 
 export interface CardDetail {
@@ -202,6 +217,7 @@ export interface CardDetail {
   pricing?: {
     cardmarket?: {
       unit?: string;
+      idProduct?: number;
       trend?: number;
       avg?: number;
       low?: number;
@@ -210,11 +226,18 @@ export interface CardDetail {
     tcgplayer?: {
       unit?: string;
       updated?: string;
-      normal?: { marketPrice?: number; lowPrice?: number };
-      holofoil?: { marketPrice?: number; lowPrice?: number };
-      "reverse-holofoil"?: { marketPrice?: number; lowPrice?: number };
+      normal?: { productId?: number; marketPrice?: number; lowPrice?: number };
+      holofoil?: { productId?: number; marketPrice?: number; lowPrice?: number };
+      "reverse-holofoil"?: { productId?: number; marketPrice?: number; lowPrice?: number };
+      unlimited?: { productId?: number; marketPrice?: number; lowPrice?: number };
+      "1st-edition"?: { productId?: number; marketPrice?: number; lowPrice?: number };
     };
   };
+  variants_detailed?: Array<{
+    type: string;
+    thirdParty?: { cardmarket?: number; tcgplayer?: number };
+    pricing?: CardDetail["pricing"];
+  }>;
 }
 
 export type PageName = "dashboard" | "cards" | "sets" | "lists" | "pokedex";

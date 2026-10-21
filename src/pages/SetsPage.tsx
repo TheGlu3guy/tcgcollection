@@ -4,26 +4,33 @@ import { LANGUAGE_BY_CODE, LANGUAGES, REGIONS } from "../lib/constants";
 import { formatNumber, getSetProgress } from "../lib/collection";
 import type { AppData, Catalog, CatalogSet, LanguageCode, Region } from "../types";
 import { EmptyState, ProgressBar } from "../components/Shared";
+import { getVisibleSets } from "../lib/cardGroups";
 
 interface SetsPageProps {
   catalog: Catalog;
   data: AppData;
   onOpenSet: (set: CatalogSet) => void;
+  onLanguageChange: (language: "all" | LanguageCode) => void;
 }
 
 const SET_PAGE_SIZE = 80;
 
-export function SetsPage({ catalog, data, onOpenSet }: SetsPageProps) {
+export function SetsPage({ catalog, data, onOpenSet, onLanguageChange }: SetsPageProps) {
   const [query, setQuery] = useState("");
-  const [region, setRegion] = useState<"all" | Region>("International");
-  const [language, setLanguage] = useState<"all" | LanguageCode>("en");
+  const [region, setRegion] = useState<"all" | Region>("all");
+  const [language, setLanguage] = useState<"all" | LanguageCode>(
+    data.preferences.catalogLanguage,
+  );
   const [visibleCount, setVisibleCount] = useState(SET_PAGE_SIZE);
   const progress = getSetProgress(data, catalog.sets);
+  const uniqueSetCount = useMemo(
+    () => getVisibleSets(catalog.sets, "all").length,
+    [catalog.sets],
+  );
   const sets = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
-    return catalog.sets
+    return getVisibleSets(catalog.sets, language)
       .filter((set) => region === "all" || set.region === region)
-      .filter((set) => language === "all" || set.language === language)
       .filter(
         (set) =>
           !normalizedQuery ||
@@ -48,7 +55,7 @@ export function SetsPage({ catalog, data, onOpenSet }: SetsPageProps) {
           <h1>Sets</h1>
           <p>
             Track completion from Base Set to the newest regional releases across{" "}
-            {formatNumber(catalog.sets.length)} sets.
+            {formatNumber(uniqueSetCount)} unique sets shown once.
           </p>
         </div>
       </section>
@@ -73,6 +80,7 @@ export function SetsPage({ catalog, data, onOpenSet }: SetsPageProps) {
             onClick={() => {
               setRegion("all");
               setLanguage("all");
+              onLanguageChange("all");
             }}
           >
             All regions
@@ -86,6 +94,7 @@ export function SetsPage({ catalog, data, onOpenSet }: SetsPageProps) {
                 setRegion(item);
                 const firstLanguage = LANGUAGES.find((entry) => entry.region === item)?.code;
                 setLanguage(firstLanguage ?? "all");
+                onLanguageChange(firstLanguage ?? "all");
               }}
             >
               {item}
@@ -95,10 +104,14 @@ export function SetsPage({ catalog, data, onOpenSet }: SetsPageProps) {
         <label className="sort-select">
           <select
             value={language}
-            onChange={(event) => setLanguage(event.target.value as "all" | LanguageCode)}
+            onChange={(event) => {
+              const nextLanguage = event.target.value as "all" | LanguageCode;
+              setLanguage(nextLanguage);
+              onLanguageChange(nextLanguage);
+            }}
             aria-label="Set language"
           >
-            <option value="all">All languages</option>
+            <option value="all">All languages · English first</option>
             {LANGUAGES.filter((item) => region === "all" || item.region === region).map((item) => (
               <option value={item.code} key={item.code}>
                 {item.flag} {item.label}

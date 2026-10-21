@@ -1,4 +1,5 @@
 import { DEFAULT_APP_DATA, GENERATIONS } from "./constants";
+import { getStoredCopyGroupKey, getVisibleCards } from "./cardGroups";
 import type {
   AppData,
   CardCopy,
@@ -26,9 +27,40 @@ export function normalizeAppData(input: Partial<AppData> | null | undefined): Ap
   };
 }
 
+function newestByKey<T extends { id: string; updatedAt: string }>(remote: T[], local: T[]): T[] {
+  const merged = new Map(remote.map((entry) => [entry.id, entry]));
+  for (const entry of local) {
+    const existing = merged.get(entry.id);
+    if (!existing || entry.updatedAt >= existing.updatedAt) merged.set(entry.id, entry);
+  }
+  return [...merged.values()];
+}
+
+export function mergeCloudData(local: AppData, remote: AppData): AppData {
+  return {
+    schemaVersion: 1,
+    collection: newestByKey(remote.collection, local.collection),
+    wishlist: [...new Set([...remote.wishlist, ...local.wishlist])],
+    lists: newestByKey(remote.lists, local.lists),
+    notes: { ...remote.notes, ...local.notes },
+    preferences: { ...remote.preferences, ...local.preferences },
+  };
+}
+
 export function quantityForCard(collection: CardCopy[], cardKey: string): number {
   return collection
     .filter((copy) => copy.cardKey === cardKey)
+    .reduce((total, copy) => total + copy.quantity, 0);
+}
+
+export function quantityForCardGroup(
+  collection: CardCopy[],
+  cards: CatalogCard[],
+  groupKey: string,
+): number {
+  const cardsByKey = new Map(cards.map((card) => [card.key, card]));
+  return collection
+    .filter((copy) => getStoredCopyGroupKey(copy, cardsByKey) === groupKey)
     .reduce((total, copy) => total + copy.quantity, 0);
 }
 
@@ -119,6 +151,18 @@ export function decrementCardCopy(data: AppData, cardKey: string): AppData {
   };
 }
 
+export function decrementCardGroup(
+  data: AppData,
+  cards: CatalogCard[],
+  groupKey: string,
+): AppData {
+  const cardsByKey = new Map(cards.map((card) => [card.key, card]));
+  const copy = data.collection.find(
+    (entry) => getStoredCopyGroupKey(entry, cardsByKey) === groupKey,
+  );
+  return copy ? decrementCardCopy(data, copy.cardKey) : data;
+}
+
 export function updateCardCopy(data: AppData, copyId: string, patch: Partial<CardCopy>): AppData {
   const collection = data.collection
     .map((copy) =>
@@ -145,6 +189,29 @@ export function toggleWishlist(data: AppData, cardKey: string): AppData {
   };
 }
 
+export function toggleWishlistGroup(
+  data: AppData,
+  cards: CatalogCard[],
+  groupKey: string,
+  selectedKey: string,
+): AppData {
+  const cardsByKey = new Map(cards.map((card) => [card.key, card]));
+  const matchingKeys = new Set(
+    data.wishlist.filter((key) => {
+      const card = cardsByKey.get(key);
+      return card && (card.groupKey || getStoredCopyGroupKey({
+        cardKey: card.key,
+        cardId: card.id,
+        setId: card.setId,
+        name: card.name,
+      }, cardsByKey)) === groupKey;
+    }),
+  );
+  return matchingKeys.size > 0
+    ? { ...data, wishlist: data.wishlist.filter((key) => !matchingKeys.has(key)) }
+    : { ...data, wishlist: [...data.wishlist, selectedKey] };
+}
+
 export function toggleListCard(
   data: AppData,
   listId: string,
@@ -162,21 +229,67 @@ export function toggleListCard(
   };
 }
 
+export function toggleListCardGroup(
+  data: AppData,
+  listId: string,
+  cards: CatalogCard[],
+  groupKey: string,
+  selectedKey: string,
+): AppData {
+  const cardsByKey = new Map(cards.map((card) => [card.key, card]));
+  return {
+    ...data,
+    lists: data.lists.map((list) => {
+      if (list.id !== listId) return list;
+      const groupKeysInList = list.cardKeys.filter((key) => {
+        const card = cardsByKey.get(key);
+        return card?.groupKey === groupKey;
+      });
+      const cardKeys =
+        groupKeysInList.length > 0
+          ? list.cardKeys.filter((key) => !groupKeysInList.includes(key))
+          : [...list.cardKeys, selectedKey];
+      return { ...list, cardKeys, updatedAt: new Date().toISOString() };
+    }),
+  };
+}
+
 export function filterCards(
   cards: CatalogCard[],
   filters: CardFilters,
   data: AppData,
 ): CatalogCard[] {
   const query = filters.query.trim().toLocaleLowerCase();
-  const owned = new Set(data.collection.map((copy) => copy.cardKey));
-  const wishlist = new Set(data.wishlist);
+  const cardsByKey = new Map(cards.map((card) => [card.key, card]));
+  const owned = new Set(
+    data.collection.map((copy) => getStoredCopyGroupKey(copy, cardsByKey)),
+  );
+  const wishlist = new Set(
+    data.wishlist.map((key) => {
+      const card = cardsByKey.get(key);
+      return card ? card.groupKey : key;
+    }),
+  );
+  const selectedList =
+    filters.listId === "all" || filters.listId === "wishlist"
+      ? undefined
+      : data.lists.find((list) => list.id === filters.listId);
+  const selectedListGroups = new Set(
+    selectedList?.cardKeys.map((key) => cardsByKey.get(key)?.groupKey ?? key) ?? [],
+  );
+  const artistQuery = filters.artist.trim().toLocaleLowerCase();
+  const visibleCards = getVisibleCards(cards, filters.language);
 
-  const filtered = cards.filter((card) => {
+  const filtered = visibleCards.filter((card) => {
     if (filters.region !== "all" && card.region !== filters.region) return false;
-    if (filters.language !== "all" && card.language !== filters.language) return false;
     if (filters.setId !== "all" && `${card.language}:${card.setId}` !== filters.setId) return false;
-    if (filters.status === "collection" && !owned.has(card.key)) return false;
-    if (filters.status === "wishlist" && !wishlist.has(card.key)) return false;
+    if (artistQuery && !card.artist?.toLocaleLowerCase().includes(artistQuery)) return false;
+    if (filters.status === "collection" && !owned.has(card.groupKey)) return false;
+    if (filters.status === "not-collection" && owned.has(card.groupKey)) return false;
+    if (filters.listId === "wishlist" && !wishlist.has(card.groupKey)) return false;
+    if (filters.listId !== "all" && filters.listId !== "wishlist" && !selectedListGroups.has(card.groupKey)) {
+      return false;
+    }
     if (query && !card.searchName.includes(query)) return false;
     return true;
   });
@@ -205,6 +318,8 @@ export function filterCards(
         if (!releaseB) return -1;
         return (
           releaseB.localeCompare(releaseA) ||
+          b.setTotal - a.setTotal ||
+          a.setName.localeCompare(b.setName) ||
           a.localId.localeCompare(b.localId, undefined, { numeric: true })
         );
     }
@@ -212,9 +327,14 @@ export function filterCards(
 }
 
 export function getCollectionStats(data: AppData, cards: CatalogCard[]) {
-  const uniqueKeys = new Set(data.collection.map((copy) => copy.cardKey));
+  const cardsByKey = new Map(cards.map((card) => [card.key, card]));
+  const uniqueKeys = new Set(
+    data.collection.map((copy) => getStoredCopyGroupKey(copy, cardsByKey)),
+  );
   const totalCopies = data.collection.reduce((total, copy) => total + copy.quantity, 0);
-  const uniqueSets = new Set(data.collection.map((copy) => `${copy.language}:${copy.setId}`));
+  const uniqueSets = new Set(
+    data.collection.map((copy) => copy.setId.toLocaleLowerCase()),
+  );
   const allDexIds = new Set(data.collection.flatMap((copy) => copy.dexIds ?? []));
   const languageCounts = data.collection.reduce<Record<string, number>>((counts, copy) => {
     counts[copy.language] = (counts[copy.language] ?? 0) + copy.quantity;
@@ -233,20 +353,24 @@ export function getCollectionStats(data: AppData, cards: CatalogCard[]) {
     lists: data.lists.length,
     estimatedValue,
     languageCounts,
-    collectionPercent: cards.length ? (uniqueKeys.size / cards.length) * 100 : 0,
+    collectionPercent: cards.length
+      ? (uniqueKeys.size / getVisibleCards(cards, "all").length) * 100
+      : 0,
   };
 }
 
 export function getSetProgress(data: AppData, sets: CatalogSet[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const copy of data.collection) {
-    const key = `${copy.language}:${copy.setId}`;
+    const key = copy.setId.toLocaleLowerCase();
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   return new Map(
     sets.map((set) => [
       set.key,
-      set.total ? Math.min(100, ((counts.get(set.key) ?? 0) / set.total) * 100) : 0,
+      set.total
+        ? Math.min(100, ((counts.get(set.id.toLocaleLowerCase()) ?? 0) / set.total) * 100)
+        : 0,
     ]),
   );
 }

@@ -7,3 +7,8 @@ dist/
 test-results/
 coverage/
 tcgcollector-reference.png
+*TCG Collector*.html
+*TCG Collector*_files/
+public/tcgcollector-import.json
+.supabase/
+tcgcollection-backup-*.json

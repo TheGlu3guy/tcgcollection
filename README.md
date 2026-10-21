@@ -5,13 +5,21 @@ A local-first Pokémon TCG collection tracker inspired by TCG Collector. It inde
 ## Features
 
 - Multilingual search across every card record currently exposed by TCGdex in English, French, German, Spanish, Italian, Portuguese, Japanese, Chinese, Indonesian, and Thai.
-- Card thumbnails with lazy loading and a fallback for records where the upstream image is unavailable.
+- Searchable artist filtering backed by the TCGdex illustrator index.
+- Physical Pokémon TCG catalog only; digital-exclusive Pokémon TCG Pocket sets are excluded.
+- One deduplicated view per card print, with an **All languages** display mode that prefers English and falls back to another available translation.
+- A per-card language switcher in the card detail view and a persistent global display-language preference.
+- Card thumbnails with lazy loading, plus a TCGplayer product-image fallback for records where TCGdex does not publish an image.
+- Separate clickable TCGplayer and Cardmarket listings beneath card tiles and list rows, with an empty marker when a quote is unavailable.
+- Cardmarket links open filtered to English and French listings in Light Played condition or better.
 - Live card details, attacks, abilities, legality, illustrator, and current Cardmarket/TCGplayer estimates when available.
 - Collection quantities with condition and variant tracking, plus per-card notes.
 - Wishlist, custom lists, list colors/descriptions, and CSV export.
+- Cards can be filtered by collection state and by Wishlist or any custom list.
 - Collection dashboard, set completion, language breakdown, estimated value, and Pokédex species progress.
 - IndexedDB catalog cache for fast repeat visits and one-click catalog sync.
 - JSON backup/export and import for moving personal data between browsers.
+- Optional Supabase email/password accounts with automatic private cloud sync across devices.
 - Responsive desktop and mobile layouts.
 - Automatic GitHub Pages deployment.
 
@@ -23,6 +31,37 @@ npm run dev
 ```
 
 Open the local URL printed by Vite. The first catalog sync fetches all supported regional card indexes and may take a few seconds. Later visits use the cached IndexedDB catalog for up to seven days.
+
+## Cloud sync setup
+
+Cloud sync uses Supabase Auth and one private collection row per authenticated user.
+
+1. Create a Supabase project.
+2. Open **SQL Editor**, paste the contents of [`supabase/schema.sql`](supabase/schema.sql), and run it once. This creates the collection table, Row Level Security policies, and conflict-aware save function.
+3. In **Project Settings → API**, copy the Project URL and publishable/anon key.
+4. Create `.env.local` from `.env.example` and fill in:
+
+   ```env
+   VITE_SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
+   VITE_SUPABASE_ANON_KEY=YOUR-PUBLISHABLE-OR-ANON-KEY
+   ```
+
+5. Restart `npm run dev`, open **Backup & settings → Cloud account**, and create an account.
+
+In **Authentication → URL Configuration**, use the deployed site as the Site URL and allow
+these redirect patterns so confirmation and password-reset emails work in both environments:
+
+```text
+http://127.0.0.1:5173/**
+http://localhost:5173/**
+https://theglu3guy.github.io/tcgcollection/**
+```
+
+Never place the database password or a Supabase `service_role`/secret key in a Vite environment variable. Only the public publishable/anon key belongs in the browser.
+
+The account flow supports email/password sign-in, email confirmation, password reset, sign-out, automatic save after changes, manual sync, and conflict merging. Once signed in on another phone or computer, it loads that account's cloud collection automatically.
+
+For this personal repository, the GitHub Pages workflow already passes this project's public URL and publishable key into the production build. Both values are safe to expose to browser clients because all data access is protected by Row Level Security. Never commit the database password or a secret/service-role key.
 
 Production build:
 
@@ -39,7 +78,9 @@ npm test
 
 ## Data and privacy
 
-No API key, account, server database, or analytics service is required. Personal data lives in browser `localStorage`; the catalog cache lives in IndexedDB. Clearing site data removes personal data unless you exported a JSON backup.
+The app remains usable without an account. Personal data then lives only in browser `localStorage`; the catalog cache lives in IndexedDB. Clearing site data removes local personal data unless you exported a JSON backup.
+
+When cloud sync is configured and you sign in, the complete collection, wishlist, custom lists, notes, and preferences are stored in your private Supabase row. Catalog images and metadata still come from TCGdex, and the catalog itself remains a local cache rather than being copied into your account.
 
 Card metadata and images are provided by TCGdex. This is an unofficial fan project and is not affiliated with The Pokémon Company, Nintendo, Creatures, Game Freak, or Wizards of the Coast.
 
