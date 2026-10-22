@@ -24,7 +24,7 @@ const IDB_NAME = "tcgcollection";
 const IDB_STORE = "catalog";
 const PRICE_STORE = "prices";
 const PRICE_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
-const PRICE_CACHE_VERSION = 8;
+const PRICE_CACHE_VERSION = 9;
 
 interface LanguageData {
   language: LanguageCode;

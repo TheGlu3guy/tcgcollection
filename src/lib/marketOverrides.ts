@@ -14,12 +14,19 @@ export const CARDMARKET_OVERRIDES: Record<string, CardmarketOverride> = {
     amountField: "trend",
     url: "https://www.cardmarket.com/en/Pokemon/Products/Singles/Skyridge/Piloswine-V2-SK24",
   },
+  "ecard3-27": {
+    sourceCardId: "ecard3-H25",
+    amountField: "trend",
+    url: "https://www.cardmarket.com/en/Pokemon/Products/Singles/Skyridge/Raichu-V2-SK27",
+  },
   "ecard3-H22": {
     sourceCardId: "ecard3-24",
     amountField: "trend",
     url: "https://www.cardmarket.com/en/Pokemon/Products/Singles/Skyridge/Piloswine-V1-SKH22",
   },
   "ecard3-H25": {
+    sourceCardId: "ecard3-27",
+    amountField: "trend",
     url: "https://www.cardmarket.com/en/Pokemon/Products/Singles/Skyridge/Raichu-V1-SKH25",
   },
   "ecard3-43": {
