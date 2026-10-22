@@ -1900,6 +1900,15 @@ p {
   color: #677b9e;
 }
 
+.price-source small {
+  margin-left: 3px;
+  color: #a0a5a2;
+  font-size: 6px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .language-chip {
   padding: 2px 4px;
   flex-shrink: 0;

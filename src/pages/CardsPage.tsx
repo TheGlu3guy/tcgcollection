@@ -123,6 +123,19 @@ export function CardsPage({
     }
     return counts;
   }, [cardsByKey, data.lists]);
+  const preferredVariantByCardKey = useMemo(() => {
+    const variants = new Map<string, Set<string>>();
+    for (const copy of data.collection) {
+      const current = variants.get(copy.cardKey) ?? new Set<string>();
+      current.add(copy.variant);
+      variants.set(copy.cardKey, current);
+    }
+    return new Map(
+      [...variants.entries()]
+        .filter(([, values]) => values.size === 1)
+        .map(([cardKey, values]) => [cardKey, [...values][0]]),
+    );
+  }, [data.collection]);
   const uniqueCardCount = useMemo(
     () => getVisibleCards(catalog.cards, filters.language).length,
     [catalog.cards, filters.language],
@@ -156,7 +169,12 @@ export function CardsPage({
   );
   const allFilteredSelected =
     filteredCards.length > 0 && selectedCards.length === filteredCards.length;
-  const visiblePriceSignature = priceFetchCards.map((card) => card.key).join("|");
+  const visiblePriceSignature = priceFetchCards
+    .map(
+      (card) =>
+        `${card.key}:${preferredVariantByCardKey.get(card.key) ?? "auto"}`,
+    )
+    .join("|");
   const priceSortLoading =
     priceSortActive &&
     priceFetchCards.some((card) => !priceChecked.has(card.key));
@@ -211,6 +229,7 @@ export function CardsPage({
         });
       },
       controller.signal,
+      preferredVariantByCardKey,
     ).finally(() => {
       setPriceChecked((current) => new Set([...current, ...batchKeys]));
       setPricingLoading((current) => {

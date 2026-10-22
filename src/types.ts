@@ -185,6 +185,7 @@ export interface PriceSnapshot {
   source: string;
   url?: string;
   updatedAt?: string;
+  variant?: string;
 }
 
 export interface MarketPrices {
@@ -224,6 +225,9 @@ export interface CardDetail {
       avg?: number;
       low?: number;
       updated?: string;
+      "trend-holo"?: number;
+      "avg-holo"?: number;
+      "low-holo"?: number;
     };
     tcgplayer?: {
       unit?: string;

@@ -87,7 +87,12 @@ export function CardDetailModal({
   const variantKeys = new Set(languageVariants.map((variant) => variant.key));
   const ownedCopies = data.collection.filter((copy) => variantKeys.has(copy.cardKey));
   const quantity = ownedCopies.reduce((total, copy) => total + copy.quantity, 0);
-  const marketPrices = useMemo(() => getMarketPrices(detail), [detail]);
+  const preferredVariant =
+    ownedCopies.length === 1 ? ownedCopies[0].variant : variant;
+  const marketPrices = useMemo(
+    () => getMarketPrices(detail, preferredVariant, card),
+    [card, detail, preferredVariant],
+  );
   const price = marketPrices.tcgplayer ?? marketPrices.cardmarket;
   const language = LANGUAGE_BY_CODE[card.language];
   const wishlisted = data.wishlist.some((key) => variantKeys.has(key));
@@ -183,7 +188,12 @@ export function CardDetailModal({
               ) : (
                 <strong>—</strong>
               )}
-              {price && <small>{price.source}</small>}
+              {price && (
+                <small>
+                  {price.source}
+                  {price.variant ? ` · ${price.variant}` : ""}
+                </small>
+              )}
             </div>
           </div>
 

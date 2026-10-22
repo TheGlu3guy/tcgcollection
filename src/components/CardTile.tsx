@@ -56,6 +56,7 @@ function MarketplacePrice({
     <>
       <span className={`price-source ${marketplace.toLocaleLowerCase()}`}>
         {marketplace}
+        {price?.variant && <small>{price.variant}</small>}
       </span>
       <strong>{priceText}</strong>
       {url && <ArrowUpRight className="price-link-icon" size={10} />}

@@ -16,6 +16,7 @@ import type {
   RawSet,
 } from "../types";
 import { getCardGroupKey } from "./cardGroups";
+import { CARDMARKET_OVERRIDES } from "./marketOverrides";
 
 const API_ROOT = "https://api.tcgdex.net/v2";
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 7;
@@ -23,7 +24,7 @@ const IDB_NAME = "tcgcollection";
 const IDB_STORE = "catalog";
 const PRICE_STORE = "prices";
 const PRICE_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
-const PRICE_CACHE_VERSION = 6;
+const PRICE_CACHE_VERSION = 8;
 
 interface LanguageData {
   language: LanguageCode;
@@ -244,10 +245,10 @@ function toCatalogSet(
     logo: raw.logo ?? metadata?.logo,
     symbol: raw.symbol ?? metadata?.symbol,
     total:
-      raw.cardCount?.total ??
       raw.cardCount?.official ??
-      metadata?.cardCount?.total ??
+      raw.cardCount?.total ??
       metadata?.cardCount?.official ??
+      metadata?.cardCount?.total ??
       0,
     official:
       raw.cardCount?.official ??
@@ -454,17 +455,45 @@ export async function loadCardDetail(
   fresh = false,
 ): Promise<CardDetail> {
   const url = `${API_ROOT}/${language}/cards/${encodeURIComponent(id)}`;
-  if (!fresh) return getJson<CardDetail>(url, signal);
-
-  const cacheBucket = Math.floor(Date.now() / (5 * 60 * 1000));
-  const response = await fetch(`${url}?fresh=${cacheBucket}`, {
-    signal,
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
+  let detail: CardDetail;
+  if (!fresh) {
+    detail = await getJson<CardDetail>(url, signal);
+  } else {
+    const cacheBucket = Math.floor(Date.now() / (5 * 60 * 1000));
+    const response = await fetch(`${url}?fresh=${cacheBucket}`, {
+      signal,
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+    detail = (await response.json()) as CardDetail;
   }
-  return response.json() as Promise<CardDetail>;
+
+  const override = CARDMARKET_OVERRIDES[id];
+  if (!override?.sourceCardId) return detail;
+  const source = await getJson<CardDetail>(
+    `${API_ROOT}/${language}/cards/${encodeURIComponent(override.sourceCardId)}`,
+    signal,
+  );
+  const sourceCardmarket = source.pricing?.cardmarket;
+  const amount =
+    override.amountField === "trend-holo"
+      ? sourceCardmarket?.["trend-holo"]
+      : sourceCardmarket?.trend;
+  return {
+    ...detail,
+    pricing: {
+      ...detail.pricing,
+      cardmarket: {
+        ...sourceCardmarket,
+        trend: amount,
+        avg: amount,
+        "trend-holo": amount,
+        "avg-holo": amount,
+      },
+    },
+  };
 }
 
 export function imageUrl(image: string | undefined, quality: "low" | "high" = "high"): string | undefined {
@@ -475,41 +504,143 @@ export function imageUrl(image: string | undefined, quality: "low" | "high" = "h
   return `${image}/${quality}.webp`;
 }
 
-export function getMarketPrice(detail: CardDetail | null): {
+export function getMarketPrice(
+  detail: CardDetail | null,
+  preferredVariant?: string,
+): {
   amount: number;
   currency: string;
   source: string;
   updatedAt?: string;
 } | null {
-  const prices = getMarketPrices(detail);
+  const prices = getMarketPrices(detail, preferredVariant);
   return prices.tcgplayer ?? prices.cardmarket;
 }
 
-export function getMarketPrices(detail: CardDetail | null): MarketPrices {
+type MarketVariant = "normal" | "reverse" | "holo" | "first-edition" | "promo";
+
+function positivePrice(value: number | undefined): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : undefined;
+}
+
+function resolveMarketVariant(
+  detail: CardDetail | null,
+  preferredVariant?: string,
+): MarketVariant | undefined {
+  const preference = preferredVariant?.toLocaleLowerCase() ?? "";
+  const variants = detail?.variants ?? {};
+  const detailedTypes = new Set(
+    (detail?.variants_detailed ?? []).map((variant) =>
+      variant.type.toLocaleLowerCase().replace(/[\s_]+/g, "-"),
+    ),
+  );
+
+  if (
+    preference.includes("reverse") &&
+    (variants.reverse || detailedTypes.has("reverse"))
+  ) {
+    return "reverse";
+  }
+  if (
+    (preference.includes("holo") || preference.includes("foil")) &&
+    !preference.includes("reverse") &&
+    (variants.holo || detailedTypes.has("holo"))
+  ) {
+    return "holo";
+  }
+  if (
+    (preference.includes("1st") || preference.includes("first")) &&
+    (variants.firstEdition || detailedTypes.has("first-edition"))
+  ) {
+    return "first-edition";
+  }
+  if (
+    (preference.includes("promo") || preference.includes("special")) &&
+    (variants.wPromo || detailedTypes.has("promo"))
+  ) {
+    return "promo";
+  }
+  if (preference.includes("normal") && variants.normal) return "normal";
+
+  if (variants.normal || detailedTypes.has("normal")) return "normal";
+  if (variants.holo || detailedTypes.has("holo")) return "holo";
+  if (variants.reverse || detailedTypes.has("reverse")) return "reverse";
+  if (variants.firstEdition || detailedTypes.has("first-edition")) {
+    return "first-edition";
+  }
+  if (variants.wPromo || detailedTypes.has("promo")) return "promo";
+  return undefined;
+}
+
+function marketVariantLabel(variant: MarketVariant | undefined): string | undefined {
+  if (variant === "normal") return "Normal";
+  if (variant === "reverse") return "Reverse Holo";
+  if (variant === "holo") return "Holo";
+  if (variant === "first-edition") return "1st Edition";
+  if (variant === "promo") return "Promo";
+  return undefined;
+}
+
+export function getMarketPrices(
+  detail: CardDetail | null,
+  preferredVariant?: string,
+  card?: CatalogCard,
+): MarketPrices {
   const tcgplayer = detail?.pricing?.tcgplayer;
-  const tcgVariant =
-    tcgplayer?.normal?.marketPrice !== undefined
-      ? tcgplayer.normal
-      : tcgplayer?.["reverse-holofoil"]?.marketPrice !== undefined
-        ? tcgplayer["reverse-holofoil"]
-        : tcgplayer?.holofoil?.marketPrice !== undefined
-          ? tcgplayer.holofoil
-          : tcgplayer?.unlimited?.marketPrice !== undefined
-            ? tcgplayer.unlimited
-            : tcgplayer?.["1st-edition"]?.marketPrice !== undefined
-              ? tcgplayer["1st-edition"]
-              : undefined;
-  const tcgAmount = tcgVariant?.marketPrice;
+  const selectedVariant = resolveMarketVariant(detail, preferredVariant);
+  const tcgBuckets = {
+    normal: tcgplayer?.normal,
+    reverse: tcgplayer?.["reverse-holofoil"],
+    holo: tcgplayer?.holofoil,
+    "first-edition": tcgplayer?.["1st-edition"],
+    promo: undefined,
+  };
+  const selectedTcgVariant = selectedVariant ? tcgBuckets[selectedVariant] : undefined;
+  const availableTcgVariant = [
+    selectedTcgVariant,
+    tcgplayer?.normal,
+    tcgplayer?.["reverse-holofoil"],
+    tcgplayer?.holofoil,
+    tcgplayer?.unlimited,
+    tcgplayer?.["1st-edition"],
+  ].find((variant) => positivePrice(variant?.marketPrice) !== undefined);
+  const tcgVariant = selectedVariant ? selectedTcgVariant : availableTcgVariant;
+  const tcgAmount = positivePrice(tcgVariant?.marketPrice);
   const cardmarket = detail?.pricing?.cardmarket;
-  const cardmarketAmount = cardmarket?.trend ?? cardmarket?.avg;
+  const cardmarketOverride =
+    CARDMARKET_OVERRIDES[card?.id ?? detail?.id ?? ""];
+  const normalCardmarketAmount =
+    positivePrice(cardmarket?.trend) ?? positivePrice(cardmarket?.avg);
+  const holoCardmarketAmount =
+    positivePrice(cardmarket?.["trend-holo"]) ??
+    positivePrice(cardmarket?.["avg-holo"]);
+  const cardmarketAmount =
+    cardmarketOverride?.disablePrice
+      ? undefined
+      : selectedVariant === "holo"
+        ? holoCardmarketAmount ?? normalCardmarketAmount
+        : normalCardmarketAmount ?? holoCardmarketAmount;
+  const selectedVariantDetail = selectedVariant
+    ? detail?.variants_detailed?.find(
+        (variant) =>
+          variant.type.toLocaleLowerCase().replace(/[\s_]+/g, "-") === selectedVariant,
+      )
+    : detail?.variants_detailed?.[0];
   const fallbackTcgplayerId = detail?.variants_detailed
-    ?.map((variant) => variant.thirdParty?.tcgplayer)
+    ?.slice()
+    .sort((a, b) =>
+      Number(b === selectedVariantDetail) - Number(a === selectedVariantDetail),
+    )
+    .map((variant) => variant.thirdParty?.tcgplayer)
     .find((id) => typeof id === "number");
   const fallbackCardmarketId =
     cardmarket?.idProduct ??
-    detail?.variants_detailed
-      ?.map((variant) => variant.thirdParty?.cardmarket)
-      .find((id) => typeof id === "number");
+    selectedVariantDetail?.thirdParty?.cardmarket ??
+    detail?.variants_detailed?.find(
+      (variant) => typeof variant.thirdParty?.cardmarket === "number",
+    )?.thirdParty?.cardmarket;
   const tcgplayerId = tcgVariant?.productId ?? fallbackTcgplayerId;
   const tcgplayerUrl = tcgplayerId
     ? `https://www.tcgplayer.com/product/${tcgplayerId}`
@@ -517,9 +648,11 @@ export function getMarketPrices(detail: CardDetail | null): MarketPrices {
   const tcgplayerImageUrl = tcgplayerId
     ? `https://product-images.tcgplayer.com/fit-in/437x437/${tcgplayerId}.jpg`
     : undefined;
-  const cardmarketUrl = fallbackCardmarketId
-    ? `https://www.cardmarket.com/en/Pokemon/Products?idProduct=${fallbackCardmarketId}&language=1,2&minCondition=5&isFoil=`
-    : undefined;
+  const cardmarketUrl = cardmarketOverride?.url
+    ? `${cardmarketOverride.url}?language=1,2&minCondition=5&isFoil=`
+    : fallbackCardmarketId
+      ? `https://www.cardmarket.com/en/Pokemon/Products?idProduct=${fallbackCardmarketId}&language=1,2&minCondition=5&isFoil=`
+      : undefined;
   return {
     tcgplayer: tcgAmount
       ? {
@@ -528,6 +661,7 @@ export function getMarketPrices(detail: CardDetail | null): MarketPrices {
           source: "TCGplayer",
           url: tcgplayerUrl,
           updatedAt: tcgplayer?.updated,
+          variant: marketVariantLabel(selectedVariant),
         }
       : null,
     cardmarket: cardmarketAmount
@@ -537,6 +671,7 @@ export function getMarketPrices(detail: CardDetail | null): MarketPrices {
           source: "Cardmarket",
           url: cardmarketUrl,
           updatedAt: cardmarket?.updated,
+          variant: marketVariantLabel(selectedVariant),
         }
       : null,
     tcgplayerUrl,
@@ -549,36 +684,52 @@ export async function loadMarketPrices(
   cards: CatalogCard[],
   onPrice: (cardKey: string, prices: MarketPrices) => void,
   signal?: AbortSignal,
+  preferredVariantsByCardKey?: Map<string, string>,
 ): Promise<void> {
-  const uniqueCards = [
-    ...new Map(cards.map((card) => [card.key, card])).values(),
-  ];
-  const cached = await readPriceCache(uniqueCards.map((card) => card.key)).catch(
+  const uniqueCards = [...new Map(cards.map((card) => [card.key, card])).values()];
+  const pendingKeys = uniqueCards.map((card) => {
+    const preferredVariant = preferredVariantsByCardKey?.get(card.key) ?? "auto";
+    return {
+      card,
+      preferredVariant,
+      cacheKey: `${card.key}::${preferredVariant.toLocaleLowerCase()}`,
+    };
+  });
+  const cached = await readPriceCache(pendingKeys.map((entry) => entry.cacheKey)).catch(
     () => new Map<string, PriceCacheEntry>(),
   );
-  const pending: CatalogCard[] = [];
+  const pending: typeof pendingKeys = [];
   const now = Date.now();
 
-  for (const card of uniqueCards) {
-    const entry = cached.get(card.key);
+  for (const item of pendingKeys) {
+    const entry = cached.get(item.cacheKey);
     const isFresh =
       entry?.version === PRICE_CACHE_VERSION &&
       entry.prices &&
       now - new Date(entry.fetchedAt).getTime() < PRICE_CACHE_TTL_MS;
-    if (isFresh) onPrice(card.key, entry.prices);
-    else pending.push(card);
+    if (isFresh) onPrice(item.card.key, entry.prices);
+    else pending.push(item);
   }
 
   let cursor = 0;
   const worker = async () => {
     while (cursor < pending.length && !signal?.aborted) {
-      const card = pending[cursor++];
+      const item = pending[cursor++];
       try {
-        const detail = await loadCardDetail(card.language, card.id, signal, true);
-        const prices = getMarketPrices(detail);
-        onPrice(card.key, prices);
+        const detail = await loadCardDetail(
+          item.card.language,
+          item.card.id,
+          signal,
+          true,
+        );
+        const prices = getMarketPrices(
+          detail,
+          item.preferredVariant === "auto" ? undefined : item.preferredVariant,
+          item.card,
+        );
+        onPrice(item.card.key, prices);
         await writePriceCache({
-          key: card.key,
+          key: item.cacheKey,
           version: PRICE_CACHE_VERSION,
           prices,
           fetchedAt: new Date().toISOString(),

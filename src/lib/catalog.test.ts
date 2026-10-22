@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getMarketPrice, getMarketPrices, isDigitalOnlySet } from "./catalog";
 import { withRecoveredCards } from "./cardGroups";
-import type { CardDetail, Catalog } from "../types";
+import type { CardDetail, Catalog, CatalogCard } from "../types";
 
 function detail(pricing: CardDetail["pricing"]): CardDetail {
   return {
@@ -85,6 +85,101 @@ describe("market pricing", () => {
     );
     expect(prices.imageUrl).toBe(
       "https://product-images.tcgplayer.com/fit-in/437x437/42382.jpg",
+    );
+  });
+
+  it("uses the holo Cardmarket quote for a holo-only card", () => {
+    const prices = getMarketPrices(
+      {
+        id: "ecard3-H22",
+        name: "Piloswine",
+        variants: { holo: true, normal: false, reverse: false },
+        pricing: {
+          cardmarket: {
+            unit: "EUR",
+            trend: 13.58,
+            "trend-holo": 30.42,
+          },
+        },
+      },
+      "Normal",
+    );
+
+    expect(prices.cardmarket).toMatchObject({
+      amount: 30.42,
+      variant: "Holo",
+    });
+  });
+
+  it("keeps normal and reverse-holo TCGplayer quotes separate", () => {
+    const detail: CardDetail = {
+      id: "ecard3-24",
+      name: "Piloswine",
+      variants: { holo: false, normal: true, reverse: true },
+      pricing: {
+        cardmarket: {
+          unit: "EUR",
+          trend: 128.71,
+          "trend-holo": 19.57,
+        },
+        tcgplayer: {
+          unit: "USD",
+          normal: { productId: 88113, marketPrice: 10 },
+          "reverse-holofoil": { productId: 88113, marketPrice: 20 },
+        },
+      },
+    };
+
+    expect(getMarketPrices(detail, "Normal").tcgplayer).toMatchObject({
+      amount: 10,
+      variant: "Normal",
+    });
+    expect(getMarketPrices(detail, "Reverse Holo").tcgplayer).toMatchObject({
+      amount: 20,
+      variant: "Reverse Holo",
+    });
+    expect(getMarketPrices(detail, "Reverse Holo").cardmarket).toMatchObject({
+      amount: 128.71,
+      variant: "Reverse Holo",
+    });
+  });
+
+  it("uses the exact Cardmarket product link for duplicate-name cards", () => {
+    const card: CatalogCard = {
+      key: "en:ecard3-H22",
+      groupKey: "ecard3:H22",
+      id: "ecard3-H22",
+      localId: "H22",
+      name: "Piloswine",
+      searchName: "piloswine ecard3-H22 H22",
+      language: "en",
+      languageLabel: "English",
+      region: "International",
+      setId: "ecard3",
+      setName: "Skyridge",
+      setSeries: "E-Card",
+      setTotal: 144,
+    };
+    const prices = getMarketPrices(
+      {
+        id: "ecard3-H22",
+        name: "Piloswine",
+        variants: { holo: true, normal: false, reverse: false },
+        pricing: {
+          cardmarket: {
+            unit: "EUR",
+            idProduct: 275301,
+            trend: 13.58,
+            "trend-holo": 30.42,
+          },
+        },
+      },
+      "Holo",
+      card,
+    );
+
+    expect(prices.cardmarketUrl).toBe(
+      "https://www.cardmarket.com/en/Pokemon/Products/Singles/Skyridge/Piloswine-V1-SKH22?language=1,2&minCondition=5&isFoil=",
     );
   });
 
