@@ -11,4 +11,5 @@ tcgcollector-reference.png
 *TCG Collector*_files/
 public/tcgcollector-import.json
 .supabase/
+supabase/.temp/
 tcgcollection-backup-*.json

@@ -45,6 +45,13 @@ export interface CloudSyncState {
   message: string | null;
 }
 
+export interface LiveTcgPricePoint {
+  productId: number;
+  printingType: string;
+  marketPrice: number | null;
+  listedMedianPrice: number | null;
+}
+
 export const INITIAL_CLOUD_STATE: CloudSyncState = {
   configured: isCloudConfigured,
   authReady: false,
@@ -161,4 +168,32 @@ export async function saveCloudCollection(
     saved: Boolean(row.saved),
     revision: Number(row.revision),
   };
+}
+
+export async function fetchLiveTcgplayerPrices(
+  productIds: number[],
+  signal?: AbortSignal,
+): Promise<LiveTcgPricePoint[]> {
+  if (!supabase || !SUPABASE_URL || !productIds.length) return [];
+  const uniqueIds = [...new Set(productIds)].slice(0, 100);
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/card-prices`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${session?.access_token ?? SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      signal,
+      body: JSON.stringify({ productIds: uniqueIds }),
+    });
+    if (!response.ok) return [];
+    const result = (await response.json()) as { prices?: LiveTcgPricePoint[] };
+    return Array.isArray(result.prices) ? result.prices : [];
+  } catch {
+    return [];
+  }
 }

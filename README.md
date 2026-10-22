@@ -47,6 +47,13 @@ Cloud sync uses Supabase Auth and one private collection row per authenticated u
    ```
 
 5. Restart `npm run dev`, open **Backup & settings → Cloud account**, and create an account.
+6. Deploy the card-price connector once so TCGplayer quotes can be retrieved by exact product ID:
+
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref pfojujdqnnqqxunrtjgz
+   npx supabase functions deploy card-prices
+   ```
 
 In **Authentication → URL Configuration**, use the deployed site as the Site URL and allow
 these redirect patterns so confirmation and password-reset emails work in both environments:
@@ -81,6 +88,8 @@ npm test
 The app remains usable without an account. Personal data then lives only in browser `localStorage`; the catalog cache lives in IndexedDB. Clearing site data removes local personal data unless you exported a JSON backup.
 
 When cloud sync is configured and you sign in, the complete collection, wishlist, custom lists, notes, and preferences are stored in your private Supabase row. Catalog images and metadata still come from TCGdex, and the catalog itself remains a local cache rather than being copied into your account.
+
+TCGdex currently omits most TCGplayer pricing fields even when it supplies a correct TCGplayer product ID. The `card-prices` Supabase function resolves those IDs against TCGplayer's public product price point endpoint and accepts batches of up to 100 IDs. If the function is unavailable, the app continues safely and shows `—` rather than substituting a different printing's price.
 
 Card metadata and images are provided by TCGdex. This is an unofficial fan project and is not affiliated with The Pokémon Company, Nintendo, Creatures, Game Freak, or Wizards of the Coast.
 

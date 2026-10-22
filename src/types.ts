@@ -195,8 +195,10 @@ export interface MarketPrices {
   tcgplayer: PriceSnapshot | null;
   cardmarket: PriceSnapshot | null;
   tcgplayerUrl?: string;
+  tcgplayerProductId?: number;
   cardmarketUrl?: string;
   imageUrl?: string;
+  marketVariant?: string;
 }
 
 export interface CardDetail {
@@ -220,6 +222,11 @@ export interface CardDetail {
   regulationMark?: string;
   legal?: Record<string, boolean>;
   variants?: Record<string, boolean>;
+  thirdParty?: {
+    cardmarket?: number;
+    tcgplayer?: number;
+    cardtrader?: number;
+  };
   pricing?: {
     cardmarket?: {
       unit?: string;
@@ -231,7 +238,7 @@ export interface CardDetail {
       "trend-holo"?: number;
       "avg-holo"?: number;
       "low-holo"?: number;
-    };
+    } | null;
     tcgplayer?: {
       unit?: string;
       updated?: string;
@@ -240,7 +247,7 @@ export interface CardDetail {
       "reverse-holofoil"?: { productId?: number; marketPrice?: number; lowPrice?: number };
       unlimited?: { productId?: number; marketPrice?: number; lowPrice?: number };
       "1st-edition"?: { productId?: number; marketPrice?: number; lowPrice?: number };
-    };
+    } | null;
   };
   variants_detailed?: Array<{
     type: string;

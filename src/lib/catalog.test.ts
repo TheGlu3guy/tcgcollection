@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getMarketPrice, getMarketPrices, isDigitalOnlySet } from "./catalog";
+import {
+  getMarketPrice,
+  getMarketPrices,
+  isDigitalOnlySet,
+  withLiveTcgplayerPrice,
+} from "./catalog";
 import { withRecoveredCards } from "./cardGroups";
 import type { CardDetail, Catalog, CatalogCard } from "../types";
 
@@ -221,6 +226,57 @@ describe("market pricing", () => {
     expect(prices.cardmarket).toBeNull();
     expect(prices.cardmarketUrl).toBe(
       "https://www.cardmarket.com/en/Pokemon/Products/Singles/EX-Delta-Species/Ditto-DS35?language=1,2&minCondition=5&isFoil=",
+    );
+  });
+
+  it("fills a missing TCGplayer quote from the matching live printing", () => {
+    const prices = withLiveTcgplayerPrice(
+      {
+        tcgplayer: null,
+        cardmarket: null,
+        tcgplayerUrl: "https://www.tcgplayer.com/product/642263",
+        tcgplayerProductId: 642263,
+        marketVariant: "Holo",
+      },
+      [
+        {
+          productId: 642263,
+          printingType: "Normal",
+          marketPrice: null,
+          listedMedianPrice: null,
+        },
+        {
+          productId: 642263,
+          printingType: "Foil",
+          marketPrice: 33.7,
+          listedMedianPrice: 36.2,
+        },
+      ],
+    );
+
+    expect(prices.tcgplayer).toMatchObject({
+      amount: 33.7,
+      currency: "USD",
+      variant: "Holo",
+    });
+  });
+
+  it("uses the root TCGplayer product ID when variant entries omit third-party IDs", () => {
+    const prices = getMarketPrices({
+      id: "sv01-121",
+      name: "Stonjourner",
+      variants: { normal: true, reverse: true },
+      thirdParty: { tcgplayer: 488010, cardmarket: 702417 },
+      variants_detailed: [
+        { type: "normal" },
+        { type: "reverse" },
+      ],
+      pricing: { tcgplayer: null, cardmarket: null },
+    });
+
+    expect(prices.tcgplayerProductId).toBe(488010);
+    expect(prices.tcgplayerUrl).toBe(
+      "https://www.tcgplayer.com/product/488010",
     );
   });
 

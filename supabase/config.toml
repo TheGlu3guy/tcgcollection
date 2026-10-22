@@ -1,0 +1,4 @@
+project_id = "pfojujdqnnqqxunrtjgz"
+
+[functions.card-prices]
+verify_jwt = false

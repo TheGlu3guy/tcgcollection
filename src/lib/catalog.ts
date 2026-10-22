@@ -17,6 +17,8 @@ import type {
 } from "../types";
 import { getCardGroupKey } from "./cardGroups";
 import { CARDMARKET_OVERRIDES } from "./marketOverrides";
+import { fetchLiveTcgplayerPrices } from "./cloud";
+import type { LiveTcgPricePoint } from "./cloud";
 
 const API_ROOT = "https://api.tcgdex.net/v2";
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 7;
@@ -24,7 +26,7 @@ const IDB_NAME = "tcgcollection";
 const IDB_STORE = "catalog";
 const PRICE_STORE = "prices";
 const PRICE_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
-const PRICE_CACHE_VERSION = 12;
+const PRICE_CACHE_VERSION = 14;
 
 interface LanguageData {
   language: LanguageCode;
@@ -677,10 +679,14 @@ export function getMarketPrices(
   const fallbackCardmarketId =
     cardmarket?.idProduct ??
     selectedVariantDetail?.thirdParty?.cardmarket ??
+    detail?.thirdParty?.cardmarket ??
     detail?.variants_detailed?.find(
       (variant) => typeof variant.thirdParty?.cardmarket === "number",
     )?.thirdParty?.cardmarket;
-  const tcgplayerId = tcgVariant?.productId ?? fallbackTcgplayerId;
+  const tcgplayerId =
+    tcgVariant?.productId ??
+    fallbackTcgplayerId ??
+    detail?.thirdParty?.tcgplayer;
   const tcgplayerUrl = tcgplayerId
     ? `https://www.tcgplayer.com/product/${tcgplayerId}`
     : undefined;
@@ -716,8 +722,39 @@ export function getMarketPrices(
         }
       : null,
     tcgplayerUrl,
+    tcgplayerProductId: tcgplayerId,
     cardmarketUrl,
     imageUrl: tcgplayerImageUrl,
+    marketVariant: marketVariantLabel(selectedVariant),
+  };
+}
+
+export function withLiveTcgplayerPrice(
+  prices: MarketPrices,
+  points: LiveTcgPricePoint[],
+): MarketPrices {
+  if (prices.tcgplayer) return prices;
+  const preferredPrinting =
+    prices.marketVariant === "Holo" ||
+    prices.marketVariant === "Reverse Holo"
+      ? "Foil"
+      : "Normal";
+  const pricePoint = points.find(
+    (point) =>
+      point.printingType === preferredPrinting &&
+      positivePrice(point.marketPrice ?? undefined) !== undefined,
+  );
+  if (!pricePoint?.marketPrice) return prices;
+  return {
+    ...prices,
+    tcgplayer: {
+      amount: pricePoint.marketPrice,
+      currency: "USD",
+      source: "TCGplayer",
+      url: prices.tcgplayerUrl,
+      updatedAt: new Date().toISOString(),
+      variant: prices.marketVariant,
+    },
   };
 }
 
@@ -753,6 +790,10 @@ export async function loadMarketPrices(
   }
 
   let cursor = 0;
+  const resolved: Array<{
+    item: (typeof pending)[number];
+    prices: MarketPrices;
+  }> = [];
   const worker = async () => {
     while (cursor < pending.length && !signal?.aborted) {
       const item = pending[cursor++];
@@ -768,13 +809,7 @@ export async function loadMarketPrices(
           item.preferredVariant === "auto" ? undefined : item.preferredVariant,
           item.card,
         );
-        onPrice(item.card.key, prices);
-        await writePriceCache({
-          key: item.cacheKey,
-          version: PRICE_CACHE_VERSION,
-          prices,
-          fetchedAt: new Date().toISOString(),
-        }).catch(() => undefined);
+        resolved.push({ item, prices });
       } catch {
         // Pricing is optional and must not prevent the card catalog from loading.
       }
@@ -784,4 +819,44 @@ export async function loadMarketPrices(
   await Promise.all(
     Array.from({ length: Math.min(6, pending.length) }, () => worker()),
   );
+
+  const missingTcgProductIds = [
+    ...new Set(
+      resolved
+        .filter(({ prices }) => !prices.tcgplayer && prices.tcgplayerProductId)
+        .map(({ prices }) => prices.tcgplayerProductId as number),
+    ),
+  ];
+  const liveTcgPrices = new Map<
+    number,
+    Awaited<ReturnType<typeof fetchLiveTcgplayerPrices>>
+  >();
+  for (let index = 0; index < missingTcgProductIds.length; index += 80) {
+    if (signal?.aborted) break;
+    const batch = missingTcgProductIds.slice(index, index + 80);
+    const points = await fetchLiveTcgplayerPrices(batch, signal).catch(() => []);
+    for (const point of points) {
+      const productPrices = liveTcgPrices.get(point.productId) ?? [];
+      productPrices.push(point);
+      liveTcgPrices.set(point.productId, productPrices);
+    }
+  }
+
+  for (const { item, prices } of resolved) {
+    let finalPrices = prices;
+    const productId = prices.tcgplayerProductId;
+    if (productId) {
+      finalPrices = withLiveTcgplayerPrice(
+        prices,
+        liveTcgPrices.get(productId) ?? [],
+      );
+    }
+    onPrice(item.card.key, finalPrices);
+    await writePriceCache({
+      key: item.cacheKey,
+      version: PRICE_CACHE_VERSION,
+      prices: finalPrices,
+      fetchedAt: new Date().toISOString(),
+    }).catch(() => undefined);
+  }
 }
