@@ -183,6 +183,47 @@ describe("market pricing", () => {
     );
   });
 
+  it("does not show a shared upstream Cardmarket quote for ambiguous duplicate-name cards", () => {
+    const card: CatalogCard = {
+      key: "en:ex11-35",
+      groupKey: "ex11:35",
+      id: "ex11-35",
+      localId: "35",
+      name: "Ditto",
+      searchName: "ditto ex11-35 35",
+      language: "en",
+      languageLabel: "English",
+      region: "International",
+      setId: "ex11",
+      setName: "EX Delta Species",
+      setAbbreviation: "DS",
+      setSeries: "EX",
+      setTotal: 113,
+      ambiguousCardmarketProduct: true,
+    };
+    const prices = getMarketPrices(
+      {
+        id: "ex11-35",
+        name: "Ditto",
+        variants: { holo: false, normal: true, reverse: false },
+        pricing: {
+          cardmarket: {
+            unit: "EUR",
+            idProduct: 276798,
+            trend: 20.15,
+          },
+        },
+      },
+      "Normal",
+      card,
+    );
+
+    expect(prices.cardmarket).toBeNull();
+    expect(prices.cardmarketUrl).toBe(
+      "https://www.cardmarket.com/en/Pokemon/Products/Singles/EX-Delta-Species/Ditto-DS35?language=1,2&minCondition=5&isFoil=",
+    );
+  });
+
   it("returns null when no market quote exists", () => {
     expect(getMarketPrice(detail({}))).toBeNull();
   });

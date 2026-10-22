@@ -24,7 +24,7 @@ const IDB_NAME = "tcgcollection";
 const IDB_STORE = "catalog";
 const PRICE_STORE = "prices";
 const PRICE_CACHE_TTL_MS = 1000 * 60 * 60 * 24;
-const PRICE_CACHE_VERSION = 9;
+const PRICE_CACHE_VERSION = 12;
 
 interface LanguageData {
   language: LanguageCode;
@@ -178,7 +178,7 @@ async function fetchLanguage(
 
 async function fetchGlobalSetMetadata(signal: AbortSignal): Promise<RawSet[]> {
   const query =
-    "{ sets { id name releaseDate logo symbol cardCount { total official } serie { id name } } }";
+    "{ sets { id name releaseDate logo symbol tcgOnline cardCount { total official } serie { id name } } }";
   const response = await fetch(`${API_ROOT}/graphql`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -259,7 +259,11 @@ function toCatalogSet(
     releaseDate: raw.releaseDate ?? metadata?.releaseDate,
     series: combined.serie?.name ?? "Other",
     seriesId: combined.serie?.id ?? "other",
-    abbreviation: raw.abbreviation?.official,
+    abbreviation:
+      raw.abbreviation?.official ??
+      raw.tcgOnline ??
+      metadata?.abbreviation?.official ??
+      metadata?.tcgOnline,
   };
 }
 
@@ -328,6 +332,7 @@ function buildCatalog(
         region: languageDefinition.region,
         setId: rawSet?.id ?? "",
         setName: normalizedSet?.name ?? rawSet?.name ?? "Unknown set",
+        setAbbreviation: normalizedSet?.abbreviation,
         setLogo: normalizedSet?.logo,
         setReleaseDate: normalizedSet?.releaseDate,
         setSeries: normalizedSet?.series ?? "Other",
@@ -340,6 +345,16 @@ function buildCatalog(
       catalogCard.groupKey = getCardGroupKey(catalogCard);
       cards.push(catalogCard);
     }
+  }
+
+  const cardNameCounts = new Map<string, number>();
+  for (const card of cards) {
+    const key = `${card.language}:${card.setId}:${card.name.toLocaleLowerCase()}`;
+    cardNameCounts.set(key, (cardNameCounts.get(key) ?? 0) + 1);
+  }
+  for (const card of cards) {
+    const key = `${card.language}:${card.setId}:${card.name.toLocaleLowerCase()}`;
+    card.ambiguousCardmarketProduct = (cardNameCounts.get(key) ?? 0) > 1;
   }
 
   cards.sort((a, b) => {
@@ -525,6 +540,28 @@ function positivePrice(value: number | undefined): number | undefined {
     : undefined;
 }
 
+function cardmarketSegment(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/['’]/g, "")
+    .replace(/[^A-Za-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function cardmarketCardUrl(card: CatalogCard): string | undefined {
+  if (card.language !== "en" || !card.setAbbreviation) return undefined;
+  const setName =
+    card.setSeries.toLocaleLowerCase() === "ex" &&
+    !/^ex\b/i.test(card.setName)
+      ? `EX ${card.setName}`
+      : card.setName;
+  const setSegment = cardmarketSegment(setName);
+  const cardSegment = `${cardmarketSegment(card.name)}-${card.setAbbreviation}${card.localId}`;
+  return `https://www.cardmarket.com/en/Pokemon/Products/Singles/${setSegment}/${cardSegment}`;
+}
+
 function resolveMarketVariant(
   detail: CardDetail | null,
   preferredVariant?: string,
@@ -619,6 +656,8 @@ export function getMarketPrices(
   const cardmarketAmount =
     cardmarketOverride?.disablePrice
       ? undefined
+      : card?.ambiguousCardmarketProduct && !cardmarketOverride?.sourceCardId
+        ? undefined
       : selectedVariant === "holo"
         ? holoCardmarketAmount ?? normalCardmarketAmount
         : normalCardmarketAmount ?? holoCardmarketAmount;
@@ -650,6 +689,8 @@ export function getMarketPrices(
     : undefined;
   const cardmarketUrl = cardmarketOverride?.url
     ? `${cardmarketOverride.url}?language=1,2&minCondition=5&isFoil=`
+    : card?.ambiguousCardmarketProduct && cardmarketCardUrl(card)
+      ? `${cardmarketCardUrl(card)}?language=1,2&minCondition=5&isFoil=`
     : fallbackCardmarketId
       ? `https://www.cardmarket.com/en/Pokemon/Products?idProduct=${fallbackCardmarketId}&language=1,2&minCondition=5&isFoil=`
       : undefined;

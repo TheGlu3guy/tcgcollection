@@ -45,6 +45,7 @@ export interface RawSet {
   releaseDate?: string;
   serie?: { id: string; name: string };
   abbreviation?: { official?: string };
+  tcgOnline?: string;
 }
 
 export interface CatalogSet {
@@ -77,11 +78,13 @@ export interface CatalogCard {
   region: Region;
   setId: string;
   setName: string;
+  setAbbreviation?: string;
   setLogo?: string;
   setReleaseDate?: string;
   setSeries: string;
   setTotal: number;
   artist?: string;
+  ambiguousCardmarketProduct?: boolean;
 }
 
 export interface Catalog {
