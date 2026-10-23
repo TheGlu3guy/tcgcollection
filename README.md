@@ -83,6 +83,18 @@ Tests:
 npm test
 ```
 
+## Install as an app
+
+The production build is an installable progressive web app. It includes a standalone
+web app manifest, 192px and 512px icons, iOS home-screen metadata, and a service worker
+that caches the application shell for offline launch.
+
+- **Android / Chromium:** open **Backup & settings → Install app**, or use the browser's
+  **Install app** menu action.
+- **iPhone / iPad:** open the Share menu and choose **Add to Home Screen**.
+- Your collection still synchronizes through Supabase after installation. Offline card
+  data remains available from the app's existing IndexedDB and price caches.
+
 ## Data and privacy
 
 The app remains usable without an account. Personal data then lives only in browser `localStorage`; the catalog cache lives in IndexedDB. Clearing site data removes local personal data unless you exported a JSON backup.

@@ -72,6 +72,7 @@ import {
   updateCloudPassword,
 } from "./lib/cloud";
 import type { CloudSyncState } from "./lib/cloud";
+import { usePwaInstall } from "./lib/pwa";
 import type {
   AppData,
   CardFilters,
@@ -145,6 +146,7 @@ export default function App() {
   const [globalSearch, setGlobalSearch] = useState("");
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [cloud, setCloud] = useState<CloudSyncState>(INITIAL_CLOUD_STATE);
+  const pwa = usePwaInstall();
   const [passwordRecovery, setPasswordRecovery] = useState(false);
   const cloudRevisionRef = useRef<number | null>(null);
   const cloudUserIdRef = useRef<string | null>(null);
@@ -1096,6 +1098,7 @@ export default function App() {
           passwordRecovery={passwordRecovery}
           onCloudUpdatePassword={cloudUpdatePassword}
           onCloudSync={cloudSyncNow}
+          pwa={pwa}
           syncing={syncing}
         />
       )}

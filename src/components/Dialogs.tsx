@@ -12,13 +12,16 @@ import {
   Mail,
   Plus,
   RefreshCcw,
+  Share2,
   ShieldCheck,
+  Smartphone,
   Upload,
   UserRound,
 } from "lucide-react";
 import { CONDITIONS, LANGUAGES, LIST_COLORS, VARIANTS } from "../lib/constants";
 import { formatNumber } from "../lib/collection";
 import type { CloudSyncState } from "../lib/cloud";
+import type { PwaState } from "../lib/pwa";
 import type {
   AppData,
   CardList,
@@ -243,6 +246,7 @@ export function SettingsDialog({
   passwordRecovery,
   onCloudUpdatePassword,
   onCloudSync,
+  pwa,
   syncing,
 }: {
   data: AppData;
@@ -260,6 +264,7 @@ export function SettingsDialog({
   passwordRecovery: boolean;
   onCloudUpdatePassword: (password: string) => Promise<void>;
   onCloudSync: () => Promise<void>;
+  pwa: PwaState;
   syncing: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -271,6 +276,7 @@ export function SettingsDialog({
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authMessage, setAuthMessage] = useState("");
+  const [installMessage, setInstallMessage] = useState("");
 
   const runAuthAction = async (action: () => Promise<void>) => {
     setAuthBusy(true);
@@ -545,6 +551,59 @@ export function SettingsDialog({
             {cloud.error && <p className="settings-warning">{cloud.error}</p>}
           </form>
         )}
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-section-heading">
+          <Smartphone size={18} />
+          <div>
+            <strong>Install app</strong>
+            <span>Use TCG Collection full-screen from your home screen.</span>
+          </div>
+        </div>
+        {pwa.installed ? (
+          <div className="install-app-status">
+            <Check size={16} /> TCG Collection is already installed.
+          </div>
+        ) : pwa.canInstall ? (
+          <div className="install-app-card">
+            <p>Install the app for a standalone window and faster access.</p>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={async () => {
+                const result = await pwa.install();
+                setInstallMessage(
+                  result === "accepted"
+                    ? "TCG Collection was installed."
+                    : result === "dismissed"
+                      ? "Installation was dismissed. You can try again later."
+                      : "Use your browser menu to install this app.",
+                );
+              }}
+            >
+              <Download size={16} /> Install TCG Collection
+            </button>
+          </div>
+        ) : (
+          <div className="install-app-card">
+            {pwa.isIos ? (
+              <>
+                <p>
+                  On iPhone or iPad, open the Share menu and choose{" "}
+                  <strong>Add to Home Screen</strong>.
+                </p>
+                <Share2 size={18} />
+              </>
+            ) : (
+              <p>
+                Open this site in Chrome, Edge, or Samsung Internet, then use the
+                browser menu&apos;s <strong>Install app</strong> action.
+              </p>
+            )}
+          </div>
+        )}
+        {installMessage && <p className="settings-success">{installMessage}</p>}
       </div>
 
       <div className="settings-section">

@@ -3360,6 +3360,38 @@ p {
   line-height: 1.45;
 }
 
+.install-app-status,
+.install-app-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 14px;
+  color: #32654d;
+  background: #edf7f1;
+  border: 1px solid #d3e9db;
+  border-radius: 9px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.install-app-card {
+  align-items: flex-start;
+  justify-content: space-between;
+  color: #626a68;
+  background: #faf9f5;
+  border-color: var(--line-dark);
+}
+
+.install-app-card p {
+  margin: 0;
+}
+
+.install-app-card .primary-button {
+  min-height: 36px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .catalog-status-row {
   display: flex;
   align-items: center;
@@ -4775,6 +4807,15 @@ p {
 
   .settings-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .install-app-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .install-app-card .primary-button {
+    width: 100%;
   }
 }
 
