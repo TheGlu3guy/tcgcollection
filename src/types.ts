@@ -256,4 +256,4 @@ export interface CardDetail {
   }>;
 }
 
-export type PageName = "dashboard" | "cards" | "sets" | "lists" | "pokedex";
+export type PageName = "dashboard" | "cards" | "sets" | "lists" | "pokedex" | "scan";

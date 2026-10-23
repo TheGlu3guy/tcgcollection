@@ -51,6 +51,12 @@
       "short_name": "Wishlist",
       "url": "./#/lists",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Scan a card",
+      "short_name": "Scan",
+      "url": "./#/scan",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

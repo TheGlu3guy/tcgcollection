@@ -1,0 +1,9 @@
+node_modules/
+image-cache/
+embeddings-cache/
+model-cache/
+synthetic-queries/
+results/raw/
+photos/*
+!photos/README.md
+!photos/labels.csv

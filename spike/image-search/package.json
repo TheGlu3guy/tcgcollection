@@ -1,0 +1,25 @@
+{
+  "name": "tcgcollection-image-search-spike",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "subset": "node scripts/with-node22.mjs scripts/build-subset.mjs",
+    "embed": "node scripts/with-node22.mjs scripts/embed-catalog.mjs",
+    "synthetic": "node scripts/with-node22.mjs scripts/generate-synthetic.mjs",
+    "evaluate": "node scripts/with-node22.mjs scripts/evaluate.mjs",
+    "report": "node scripts/with-node22.mjs scripts/write-report.mjs",
+    "query": "node scripts/with-node22.mjs scripts/query.mjs",
+    "spike": "node scripts/with-node22.mjs scripts/run-spike.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.1",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "node": "^22.23.4"
+  }
+}

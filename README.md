@@ -21,6 +21,7 @@ A local-first Pokémon TCG collection tracker inspired by TCG Collector. It inde
 - JSON backup/export and import for moving personal data between browsers.
 - Optional Supabase email/password accounts with automatic private cloud sync across devices.
 - Responsive desktop and mobile layouts.
+- An experimental on-device card scan page that turns one phone photo into five visual candidates and opens any match in the normal card detail view.
 - Automatic GitHub Pages deployment.
 
 ## Run locally
@@ -82,6 +83,18 @@ Tests:
 ```bash
 npm test
 ```
+
+## Image search test
+
+Open **Scan** in the main navigation, take or choose one card photo, and select
+**Find top 5 matches**. The first scan downloads the quantized DINOv2 model
+(about 23 MiB); later scans reuse the browser cache.
+
+The shipped test index currently contains 2,701 cards from six selected sets
+plus 2,000 random distractor cards. It is an experimental subset, so cards
+outside it cannot be returned yet. The feasibility measurements and synthetic
+benchmark are documented in [`spike/image-search/results/REPORT.md`](spike/image-search/results/REPORT.md).
+Real phone-photo accuracy has not yet been measured.
 
 ## Install as an app
 

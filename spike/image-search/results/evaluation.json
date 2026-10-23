@@ -1,0 +1,5324 @@
+{
+  "generatedAt": "2026-10-23T22:25:28.533Z",
+  "nodeVersion": "v22.23.4",
+  "catalog": {
+    "cards": 2701,
+    "selectedSets": [
+      {
+        "language": "en",
+        "setId": "base1",
+        "setName": "Base Set",
+        "cardsWithImages": 102
+      },
+      {
+        "language": "en",
+        "setId": "base4",
+        "setName": "Base Set 2",
+        "cardsWithImages": 130
+      },
+      {
+        "language": "en",
+        "setId": "xy12",
+        "setName": "Evolutions",
+        "cardsWithImages": 113
+      },
+      {
+        "language": "en",
+        "setId": "cel25",
+        "setName": "Celebrations",
+        "cardsWithImages": 24
+      },
+      {
+        "language": "en",
+        "setId": "swsh12.5",
+        "setName": "Crown Zenith",
+        "cardsWithImages": 160
+      },
+      {
+        "language": "en",
+        "setId": "sv10.5b",
+        "setName": "Black Bolt",
+        "cardsWithImages": 172
+      }
+    ],
+    "distractors": 2000
+  },
+  "syntheticQueryCount": 100,
+  "realQueryCount": 0,
+  "realLabelErrors": [],
+  "modelFileSizes": {
+    "Xenova/clip-vit-base-patch32": {
+      "quantizedModelBytes": 89117001,
+      "fullModelBytes": 351685709
+    },
+    "Xenova/dinov2-small": {
+      "quantizedModelBytes": 24451943,
+      "fullModelBytes": 88459888
+    },
+    "Xenova/mobileclip_s0": {
+      "quantizedModelBytes": 11846843,
+      "fullModelBytes": 45543630
+    }
+  },
+  "indexSizes": {
+    "Xenova/clip-vit-base-patch32|whole": {
+      "dimension": 512,
+      "actualFloat32Bytes": 5531648,
+      "actualInt8Bytes": 1393716,
+      "extrapolatedFloat32Bytes": 78848000,
+      "extrapolatedInt8Bytes": 19866000
+    },
+    "Xenova/clip-vit-base-patch32|center-crop": {
+      "dimension": 512,
+      "actualFloat32Bytes": 5531648,
+      "actualInt8Bytes": 1393716,
+      "extrapolatedFloat32Bytes": 78848000,
+      "extrapolatedInt8Bytes": 19866000
+    },
+    "Xenova/dinov2-small|whole": {
+      "dimension": 384,
+      "actualFloat32Bytes": 4148736,
+      "actualInt8Bytes": 1047988,
+      "extrapolatedFloat32Bytes": 59136000,
+      "extrapolatedInt8Bytes": 14938000
+    },
+    "Xenova/dinov2-small|center-crop": {
+      "dimension": 384,
+      "actualFloat32Bytes": 4148736,
+      "actualInt8Bytes": 1047988,
+      "extrapolatedFloat32Bytes": 59136000,
+      "extrapolatedInt8Bytes": 14938000
+    },
+    "Xenova/mobileclip_s0|whole": {
+      "dimension": 512,
+      "actualFloat32Bytes": 5531648,
+      "actualInt8Bytes": 1393716,
+      "extrapolatedFloat32Bytes": 78848000,
+      "extrapolatedInt8Bytes": 19866000
+    },
+    "Xenova/mobileclip_s0|center-crop": {
+      "dimension": 512,
+      "actualFloat32Bytes": 5531648,
+      "actualInt8Bytes": 1393716,
+      "extrapolatedFloat32Bytes": 78848000,
+      "extrapolatedInt8Bytes": 19866000
+    }
+  },
+  "runs": [
+    {
+      "dataset": "synthetic",
+      "modelId": "Xenova/clip-vit-base-patch32",
+      "modelLabel": "CLIP ViT-B/32",
+      "preprocessing": "whole",
+      "queryCount": 100,
+      "dimension": 512,
+      "float32": {
+        "exactTop1": 0.67,
+        "exactTop5": 0.89,
+        "exactTop10": 0.95,
+        "sameArtworkTop1": 0.8,
+        "sameArtworkTop5": 0.93,
+        "sameArtworkTop10": 0.96
+      },
+      "int8": {
+        "exactTop1": 0.68,
+        "exactTop5": 0.89,
+        "exactTop10": 0.95,
+        "sameArtworkTop1": 0.8,
+        "sameArtworkTop5": 0.93,
+        "sameArtworkTop10": 0.96
+      },
+      "latency": {
+        "endToEnd": {
+          "medianMs": 25.95279999999991,
+          "p95Ms": 28.323699999999917
+        },
+        "preprocessing": {
+          "medianMs": 11.412950000000137,
+          "p95Ms": 12.915199999999913
+        },
+        "embedding": {
+          "medianMs": 11.348950000000002,
+          "p95Ms": 11.97849999999994
+        }
+      },
+      "failures": [
+        {
+          "filename": "synthetic-queries/query-038.jpg",
+          "expected": "en:base4-113",
+          "expectedName": "PlusPower",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-84",
+              "name": "PlusPower",
+              "score": 0.8438357128385701
+            },
+            {
+              "cardKey": "en:base1-90",
+              "name": "Super Potion",
+              "score": 0.8408217069196138
+            },
+            {
+              "cardKey": "en:base1-82",
+              "name": "Full Heal",
+              "score": 0.8400627182767727
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-050.jpg",
+          "expected": "en:sv10.5b-114",
+          "expectedName": "Eelektrik",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:A3-168",
+              "name": "Comfey",
+              "score": 0.8515160093617746
+            },
+            {
+              "cardKey": "en:sv03-198",
+              "name": "Gloom",
+              "score": 0.8385711575649953
+            },
+            {
+              "cardKey": "en:me02-095",
+              "name": "Ludicolo",
+              "score": 0.8206422934041794
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-052.jpg",
+          "expected": "en:base1-71",
+          "expectedName": "Computer Search",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base4-101",
+              "name": "Computer Search",
+              "score": 0.9013314611919053
+            },
+            {
+              "cardKey": "en:xy12-82",
+              "name": "Pokédex",
+              "score": 0.8863405440090373
+            },
+            {
+              "cardKey": "en:base4-115",
+              "name": "Pokédex",
+              "score": 0.8703750396144272
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-053.jpg",
+          "expected": "en:cel25-19",
+          "expectedName": "Yveltal",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:A3a-088",
+              "name": "Buzzwole ex",
+              "score": 0.7954266685454339
+            },
+            {
+              "cardKey": "en:svp-132",
+              "name": "Greninja ex",
+              "score": 0.7883301496392571
+            },
+            {
+              "cardKey": "en:sv06-222",
+              "name": "Bloodmoon Ursaluna ex",
+              "score": 0.7863045765825001
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-064.jpg",
+          "expected": "en:xy12-52",
+          "expectedName": "Mewtwo EX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:basep-47",
+              "name": "Mew",
+              "score": 0.8828256272365457
+            },
+            {
+              "cardKey": "en:swsh12.5-059",
+              "name": "Mewtwo",
+              "score": 0.8784920328526937
+            },
+            {
+              "cardKey": "en:xy9-59",
+              "name": "Meowstic",
+              "score": 0.8467779221419653
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-066.jpg",
+          "expected": "en:base4-21",
+          "expectedName": "Beedrill",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:pl2-13",
+              "name": "Shiftry",
+              "score": 0.8219550980018391
+            },
+            {
+              "cardKey": "en:me04-098",
+              "name": "Beedrill ex",
+              "score": 0.8203609564710447
+            },
+            {
+              "cardKey": "en:sv04-209",
+              "name": "Ferrothorn",
+              "score": 0.8201795094870256
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-069.jpg",
+          "expected": "en:base4-100",
+          "expectedName": "Weedle",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base4-93",
+              "name": "Squirtle",
+              "score": 0.8316261871978808
+            },
+            {
+              "cardKey": "en:pop4-16",
+              "name": "Wobbuffet",
+              "score": 0.8297112151141163
+            },
+            {
+              "cardKey": "en:A4-010",
+              "name": "Meganium",
+              "score": 0.8214565605358568
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-080.jpg",
+          "expected": "en:xy12-84",
+          "expectedName": "Professor Oak's Hint",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base4-122",
+              "name": "Potion",
+              "score": 0.7987529815111164
+            },
+            {
+              "cardKey": "en:base4-115",
+              "name": "Pokédex",
+              "score": 0.7918494045642818
+            },
+            {
+              "cardKey": "en:base1-94",
+              "name": "Potion",
+              "score": 0.7864805320512469
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-085.jpg",
+          "expected": "en:base1-46",
+          "expectedName": "Charmander",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:lc-70",
+              "name": "Charmander",
+              "score": 0.8809356438937226
+            },
+            {
+              "cardKey": "en:xy12-9",
+              "name": "Charmander",
+              "score": 0.868525586570499
+            },
+            {
+              "cardKey": "en:swshp-SWSH232",
+              "name": "Charmander",
+              "score": 0.8622368046213121
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-095.jpg",
+          "expected": "en:sv10.5b-021",
+          "expectedName": "Seismitoad",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:xy9-35",
+              "name": "Seismitoad",
+              "score": 0.8550197189616231
+            },
+            {
+              "cardKey": "en:swsh7-38",
+              "name": "Milotic",
+              "score": 0.849096099791427
+            },
+            {
+              "cardKey": "en:xy2-23",
+              "name": "Milotic",
+              "score": 0.8484412752640472
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-098.jpg",
+          "expected": "en:base1-80",
+          "expectedName": "Defender",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:neo2-72",
+              "name": "Fossil Egg",
+              "score": 0.8474988278834781
+            },
+            {
+              "cardKey": "en:base4-122",
+              "name": "Potion",
+              "score": 0.8465622519620133
+            },
+            {
+              "cardKey": "en:base1-92",
+              "name": "Energy Removal",
+              "score": 0.8442746267088915
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "real",
+      "modelId": "Xenova/clip-vit-base-patch32",
+      "modelLabel": "CLIP ViT-B/32",
+      "preprocessing": "whole",
+      "queryCount": 0,
+      "status": "not available: add labeled photos to photos/labels.csv",
+      "dimension": 512
+    },
+    {
+      "dataset": "synthetic",
+      "modelId": "Xenova/clip-vit-base-patch32",
+      "modelLabel": "CLIP ViT-B/32",
+      "preprocessing": "center-crop",
+      "queryCount": 100,
+      "dimension": 512,
+      "float32": {
+        "exactTop1": 0.73,
+        "exactTop5": 0.93,
+        "exactTop10": 0.94,
+        "sameArtworkTop1": 0.82,
+        "sameArtworkTop5": 0.94,
+        "sameArtworkTop10": 0.96
+      },
+      "int8": {
+        "exactTop1": 0.74,
+        "exactTop5": 0.93,
+        "exactTop10": 0.94,
+        "sameArtworkTop1": 0.83,
+        "sameArtworkTop5": 0.94,
+        "sameArtworkTop10": 0.96
+      },
+      "latency": {
+        "endToEnd": {
+          "medianMs": 26.485400000000254,
+          "p95Ms": 29.380699999999706
+        },
+        "preprocessing": {
+          "medianMs": 11.612700000000132,
+          "p95Ms": 13.660300000000007
+        },
+        "embedding": {
+          "medianMs": 11.512549999999464,
+          "p95Ms": 11.896300000000338
+        }
+      },
+      "failures": [
+        {
+          "filename": "synthetic-queries/query-038.jpg",
+          "expected": "en:base4-113",
+          "expectedName": "PlusPower",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-122",
+              "name": "Potion",
+              "score": 0.8345743056600204
+            },
+            {
+              "cardKey": "en:base4-103",
+              "name": "Item Finder",
+              "score": 0.818128451631656
+            },
+            {
+              "cardKey": "en:xy12-79",
+              "name": "Maintenance",
+              "score": 0.8130079497102215
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-043.jpg",
+          "expected": "en:sv10.5b-127",
+          "expectedName": "Conkeldurr",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv10-197",
+              "name": "Rotom",
+              "score": 0.8024578818181317
+            },
+            {
+              "cardKey": "en:B2-201",
+              "name": "Mega Mawile ex",
+              "score": 0.7975585476856967
+            },
+            {
+              "cardKey": "en:sv06.5-091",
+              "name": "Munkidori ex",
+              "score": 0.7927752507729843
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-053.jpg",
+          "expected": "en:cel25-19",
+          "expectedName": "Yveltal",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv07-170",
+              "name": "Terapagos ex",
+              "score": 0.8079127241085633
+            },
+            {
+              "cardKey": "en:sm11-228",
+              "name": "Garchomp & Giratina GX",
+              "score": 0.8041080868143712
+            },
+            {
+              "cardKey": "en:svp-132",
+              "name": "Greninja ex",
+              "score": 0.8004002945359179
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-066.jpg",
+          "expected": "en:base4-21",
+          "expectedName": "Beedrill",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:ecard3-145",
+              "name": "Celebi",
+              "score": 0.819829803625704
+            },
+            {
+              "cardKey": "en:ecard3-25",
+              "name": "Politoed",
+              "score": 0.818897511554906
+            },
+            {
+              "cardKey": "en:ecard2-35",
+              "name": "Steelix",
+              "score": 0.8100858472392758
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-075.jpg",
+          "expected": "en:sv10.5b-120",
+          "expectedName": "Elgyem",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swshp-SWSH217",
+              "name": "Morpeko V-UNION",
+              "score": 0.7651773038016124
+            },
+            {
+              "cardKey": "en:sv04-209",
+              "name": "Ferrothorn",
+              "score": 0.75616747467153
+            },
+            {
+              "cardKey": "en:sv10.5b-096",
+              "name": "Amoonguss",
+              "score": 0.7557714455185673
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-085.jpg",
+          "expected": "en:base1-46",
+          "expectedName": "Charmander",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:lc-70",
+              "name": "Charmander",
+              "score": 0.9052582359479372
+            },
+            {
+              "cardKey": "en:xy12-9",
+              "name": "Charmander",
+              "score": 0.9023498830765584
+            },
+            {
+              "cardKey": "en:base4-69",
+              "name": "Charmander",
+              "score": 0.8833040125362734
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-098.jpg",
+          "expected": "en:base1-80",
+          "expectedName": "Defender",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-122",
+              "name": "Potion",
+              "score": 0.8481870713642112
+            },
+            {
+              "cardKey": "en:neo2-72",
+              "name": "Fossil Egg",
+              "score": 0.8432623712822527
+            },
+            {
+              "cardKey": "en:base4-121",
+              "name": "Poké Ball",
+              "score": 0.8343592246000692
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "real",
+      "modelId": "Xenova/clip-vit-base-patch32",
+      "modelLabel": "CLIP ViT-B/32",
+      "preprocessing": "center-crop",
+      "queryCount": 0,
+      "status": "not available: add labeled photos to photos/labels.csv",
+      "dimension": 512
+    },
+    {
+      "dataset": "synthetic",
+      "modelId": "Xenova/dinov2-small",
+      "modelLabel": "DINOv2 small",
+      "preprocessing": "whole",
+      "queryCount": 100,
+      "dimension": 384,
+      "float32": {
+        "exactTop1": 0.84,
+        "exactTop5": 1,
+        "exactTop10": 1,
+        "sameArtworkTop1": 0.98,
+        "sameArtworkTop5": 1,
+        "sameArtworkTop10": 1
+      },
+      "int8": {
+        "exactTop1": 0.85,
+        "exactTop5": 1,
+        "exactTop10": 1,
+        "sameArtworkTop1": 0.98,
+        "sameArtworkTop5": 1,
+        "sameArtworkTop10": 1
+      },
+      "latency": {
+        "endToEnd": {
+          "medianMs": 30.824450000000525,
+          "p95Ms": 33.42450000000099
+        },
+        "preprocessing": {
+          "medianMs": 10.982049999999617,
+          "p95Ms": 12.88630000000012
+        },
+        "embedding": {
+          "medianMs": 15.903849999999693,
+          "p95Ms": 16.335699999999633
+        }
+      },
+      "failures": []
+    },
+    {
+      "dataset": "real",
+      "modelId": "Xenova/dinov2-small",
+      "modelLabel": "DINOv2 small",
+      "preprocessing": "whole",
+      "queryCount": 0,
+      "status": "not available: add labeled photos to photos/labels.csv",
+      "dimension": 384
+    },
+    {
+      "dataset": "synthetic",
+      "modelId": "Xenova/dinov2-small",
+      "modelLabel": "DINOv2 small",
+      "preprocessing": "center-crop",
+      "queryCount": 100,
+      "dimension": 384,
+      "float32": {
+        "exactTop1": 0.85,
+        "exactTop5": 0.99,
+        "exactTop10": 1,
+        "sameArtworkTop1": 0.97,
+        "sameArtworkTop5": 1,
+        "sameArtworkTop10": 1
+      },
+      "int8": {
+        "exactTop1": 0.85,
+        "exactTop5": 0.99,
+        "exactTop10": 1,
+        "sameArtworkTop1": 0.97,
+        "sameArtworkTop5": 1,
+        "sameArtworkTop10": 1
+      },
+      "latency": {
+        "endToEnd": {
+          "medianMs": 30.910350000001017,
+          "p95Ms": 33.305499999998574
+        },
+        "preprocessing": {
+          "medianMs": 11.086749999999483,
+          "p95Ms": 12.88130000000092
+        },
+        "embedding": {
+          "medianMs": 15.913100000000668,
+          "p95Ms": 16.428200000000288
+        }
+      },
+      "failures": [
+        {
+          "filename": "synthetic-queries/query-068.jpg",
+          "expected": "en:xy12-49",
+          "expectedName": "Drowzee",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:B1-084",
+              "name": "Ampharos",
+              "score": 0.7730556046956405
+            },
+            {
+              "cardKey": "en:base4-73",
+              "name": "Drowzee",
+              "score": 0.7621975450895422
+            },
+            {
+              "cardKey": "en:sv10.5b-024",
+              "name": "Alomomola",
+              "score": 0.7544677576151683
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "real",
+      "modelId": "Xenova/dinov2-small",
+      "modelLabel": "DINOv2 small",
+      "preprocessing": "center-crop",
+      "queryCount": 0,
+      "status": "not available: add labeled photos to photos/labels.csv",
+      "dimension": 384
+    },
+    {
+      "dataset": "synthetic",
+      "modelId": "Xenova/mobileclip_s0",
+      "modelLabel": "MobileCLIP S0",
+      "preprocessing": "whole",
+      "queryCount": 100,
+      "dimension": 512,
+      "float32": {
+        "exactTop1": 0,
+        "exactTop5": 0,
+        "exactTop10": 0.01,
+        "sameArtworkTop1": 0,
+        "sameArtworkTop5": 0.03,
+        "sameArtworkTop10": 0.04
+      },
+      "int8": {
+        "exactTop1": 0,
+        "exactTop5": 0,
+        "exactTop10": 0.01,
+        "sameArtworkTop1": 0,
+        "sameArtworkTop5": 0.03,
+        "sameArtworkTop10": 0.04
+      },
+      "latency": {
+        "endToEnd": {
+          "medianMs": 84.91424999999981,
+          "p95Ms": 90.65209999999934
+        },
+        "preprocessing": {
+          "medianMs": 11.051699999999073,
+          "p95Ms": 13.16059999999925
+        },
+        "embedding": {
+          "medianMs": 70.0598,
+          "p95Ms": 75.40860000000248
+        }
+      },
+      "failures": [
+        {
+          "filename": "synthetic-queries/query-001.jpg",
+          "expected": "en:swsh12.5-128",
+          "expectedName": "Energy Search",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base1-83",
+              "name": "Maintenance",
+              "score": 0.9106950863095715
+            },
+            {
+              "cardKey": "en:sv02-172",
+              "name": "Boss's Orders",
+              "score": 0.9031609577505518
+            },
+            {
+              "cardKey": "en:sv04-233",
+              "name": "Maushold ex",
+              "score": 0.9007365282460336
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-002.jpg",
+          "expected": "en:base1-26",
+          "expectedName": "Dratini",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:svp-137",
+              "name": "Horsea",
+              "score": 0.8596689685911351
+            },
+            {
+              "cardKey": "en:sm1-163",
+              "name": "Metal Energy",
+              "score": 0.8461494451471959
+            },
+            {
+              "cardKey": "en:base4-38",
+              "name": "Dratini",
+              "score": 0.8401851080900032
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-003.jpg",
+          "expected": "en:base4-32",
+          "expectedName": "Victreebel",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv04.5-157",
+              "name": "Mime Jr.",
+              "score": 0.8975704692778538
+            },
+            {
+              "cardKey": "en:smp-SM24",
+              "name": "Popplio",
+              "score": 0.8867319860397036
+            },
+            {
+              "cardKey": "en:swsh12-193",
+              "name": "Serena",
+              "score": 0.885344341355184
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-004.jpg",
+          "expected": "en:base4-34",
+          "expectedName": "Butterfree",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base1-35",
+              "name": "Magikarp",
+              "score": 0.955884493450367
+            },
+            {
+              "cardKey": "en:base4-59",
+              "name": "Rhydon",
+              "score": 0.9439735432346968
+            },
+            {
+              "cardKey": "en:base4-92",
+              "name": "Spearow",
+              "score": 0.9431450940548348
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-005.jpg",
+          "expected": "en:cel25-18",
+          "expectedName": "Zamazenta V",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-172",
+              "name": "Zekrom ex",
+              "score": 0.8995326167401648
+            },
+            {
+              "cardKey": "en:sv10.5b-113",
+              "name": "Tynamo",
+              "score": 0.8982247495250129
+            },
+            {
+              "cardKey": "en:sv10.5b-169",
+              "name": "Genesect ex",
+              "score": 0.897239930042764
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-006.jpg",
+          "expected": "en:xy12-89",
+          "expectedName": "Venusaur Spirit Link",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:pl3-99",
+              "name": "Combee",
+              "score": 0.8166362605847789
+            },
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.8109460781825817
+            },
+            {
+              "cardKey": "en:xy2-23",
+              "name": "Milotic",
+              "score": 0.8098392851848514
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-007.jpg",
+          "expected": "en:sv10.5b-129",
+          "expectedName": "Dwebble",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:ecard1-57",
+              "name": "Ninetales",
+              "score": 0.9208768672447336
+            },
+            {
+              "cardKey": "en:base4-38",
+              "name": "Dratini",
+              "score": 0.9195831701029726
+            },
+            {
+              "cardKey": "en:swsh5-32",
+              "name": "Seadra",
+              "score": 0.9161720092822598
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-008.jpg",
+          "expected": "en:swsh12.5-001",
+          "expectedName": "Oddish",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.8371644965983849
+            },
+            {
+              "cardKey": "en:sv10.5b-124",
+              "name": "Drilbur",
+              "score": 0.8139873506684707
+            },
+            {
+              "cardKey": "en:swsh3.5-13",
+              "name": "Wailord V",
+              "score": 0.8099283665941578
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-009.jpg",
+          "expected": "en:swsh12.5-119",
+          "expectedName": "Oranguru",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-159",
+              "name": "Metal Energy",
+              "score": 0.8513972765819003
+            },
+            {
+              "cardKey": "en:base1-101",
+              "name": "Psychic Energy",
+              "score": 0.850997732971863
+            },
+            {
+              "cardKey": "en:neo4-84",
+              "name": "Swinub",
+              "score": 0.8353459992619815
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-010.jpg",
+          "expected": "en:base1-49",
+          "expectedName": "Drowzee",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xy9-112",
+              "name": "Tierno",
+              "score": 0.6610955939581933
+            },
+            {
+              "cardKey": "en:A2b-010",
+              "name": "Charizard ex",
+              "score": 0.5882994659672687
+            },
+            {
+              "cardKey": "en:xy12-94",
+              "name": "Lightning Energy",
+              "score": 0.5242369360060144
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-011.jpg",
+          "expected": "en:base1-50",
+          "expectedName": "Gastly",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.9127355757686363
+            },
+            {
+              "cardKey": "en:g1-50",
+              "name": "Clefairy",
+              "score": 0.8862376206940475
+            },
+            {
+              "cardKey": "en:base4-15",
+              "name": "Poliwrath",
+              "score": 0.8853811714677884
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-012.jpg",
+          "expected": "en:sv10.5b-051",
+          "expectedName": "Dwebble",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-111",
+              "name": "Surfing Pikachu",
+              "score": 0.9261991142412792
+            },
+            {
+              "cardKey": "en:A3-195",
+              "name": "Sophocles",
+              "score": 0.9231154104187103
+            },
+            {
+              "cardKey": "en:sm3-109",
+              "name": "Noibat",
+              "score": 0.9193161328651598
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-013.jpg",
+          "expected": "en:base4-8",
+          "expectedName": "Hitmonchan",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-54",
+              "name": "Sandshrew",
+              "score": 0.9262975711672093
+            },
+            {
+              "cardKey": "en:base4-19",
+              "name": "Wigglytuff",
+              "score": 0.9248545018301735
+            },
+            {
+              "cardKey": "en:swshp-SWSH071",
+              "name": "Scorbunny",
+              "score": 0.922615902604341
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-014.jpg",
+          "expected": "en:xy12-15",
+          "expectedName": "Ninetales",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:smp-SM24",
+              "name": "Popplio",
+              "score": 0.9189758329390882
+            },
+            {
+              "cardKey": "en:base4-26",
+              "name": "Kangaskhan",
+              "score": 0.916175539066032
+            },
+            {
+              "cardKey": "en:base1-27",
+              "name": "Farfetch'd",
+              "score": 0.9137634852513261
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-015.jpg",
+          "expected": "en:sv10.5b-124",
+          "expectedName": "Drilbur",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-159",
+              "name": "Metal Energy",
+              "score": 0.8079390759247553
+            },
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.8048295801326191
+            },
+            {
+              "cardKey": "en:swsh11-210",
+              "name": "Thorton",
+              "score": 0.7762833640047669
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-016.jpg",
+          "expected": "en:sv10.5b-139",
+          "expectedName": "Klink",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9284704420772802
+            },
+            {
+              "cardKey": "en:xy7-46",
+              "name": "Malamar",
+              "score": 0.9280336729479775
+            },
+            {
+              "cardKey": "en:sm3-19",
+              "name": "Charmeleon",
+              "score": 0.9265228092472403
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-017.jpg",
+          "expected": "en:base1-78",
+          "expectedName": "Scoop Up",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-76",
+              "name": "Devolution Spray",
+              "score": 0.9057514662864665
+            },
+            {
+              "cardKey": "en:xy3-103",
+              "name": "Herbal Energy",
+              "score": 0.8929035094709386
+            },
+            {
+              "cardKey": "en:dp6-75",
+              "name": "Tentacruel",
+              "score": 0.8921170303936223
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-018.jpg",
+          "expected": "en:sv10.5b-165",
+          "expectedName": "Kyurem ex",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swshp-SWSH219",
+              "name": "Boltund V",
+              "score": 0.9036351661766135
+            },
+            {
+              "cardKey": "en:swsh2-70",
+              "name": "Toxtricity V",
+              "score": 0.9014058832773365
+            },
+            {
+              "cardKey": "en:ex8-95",
+              "name": "Scramble Energy",
+              "score": 0.901344993238779
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-019.jpg",
+          "expected": "en:base4-46",
+          "expectedName": "Kadabra",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:neo3-22",
+              "name": "Raikou",
+              "score": 0.8474760812701942
+            },
+            {
+              "cardKey": "en:swsh12.5-037",
+              "name": "Kyogre V",
+              "score": 0.8468353713381854
+            },
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.8335793522946219
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-020.jpg",
+          "expected": "en:xy12-56",
+          "expectedName": "Dugtrio",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:me03-072",
+              "name": "Energy Search",
+              "score": 0.8651184870483416
+            },
+            {
+              "cardKey": "en:sv03.5-086",
+              "name": "Seel",
+              "score": 0.8341202747379652
+            },
+            {
+              "cardKey": "en:swsh11-192",
+              "name": "Iscan",
+              "score": 0.8326800764811203
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-021.jpg",
+          "expected": "en:base4-63",
+          "expectedName": "Wartortle",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sm5-62",
+              "name": "Lunala ◇",
+              "score": 0.925096475572267
+            },
+            {
+              "cardKey": "en:me02.5-113",
+              "name": "Mega Lucario ex",
+              "score": 0.923958469052731
+            },
+            {
+              "cardKey": "en:me03-102",
+              "name": "Mega Starmie ex",
+              "score": 0.9111694737346429
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-022.jpg",
+          "expected": "en:xy12-20",
+          "expectedName": "Magmar",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xy9-109",
+              "name": "Puzzle of Time",
+              "score": 0.9345242289785157
+            },
+            {
+              "cardKey": "en:sm8-156",
+              "name": "Stantler",
+              "score": 0.9324379466870074
+            },
+            {
+              "cardKey": "en:me02-090",
+              "name": "Grimsley's Move",
+              "score": 0.9284635248857868
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-023.jpg",
+          "expected": "en:base4-95",
+          "expectedName": "Staryu",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-009",
+              "name": "Karrablast",
+              "score": 0.9195089159692249
+            },
+            {
+              "cardKey": "en:sv10.5b-034",
+              "name": "Zekrom ex",
+              "score": 0.9139826946833647
+            },
+            {
+              "cardKey": "en:swsh11-081",
+              "name": "Spectrier",
+              "score": 0.9049308394528255
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-024.jpg",
+          "expected": "en:xy12-71",
+          "expectedName": "Porygon",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-104",
+              "name": "Pidgeot EX",
+              "score": 0.9555398876857237
+            },
+            {
+              "cardKey": "en:sv04-234",
+              "name": "Bombirdier ex",
+              "score": 0.9447090821476283
+            },
+            {
+              "cardKey": "en:sv10.5b-008",
+              "name": "Maractus",
+              "score": 0.9421875548161608
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-025.jpg",
+          "expected": "en:sv10.5b-072",
+          "expectedName": "Tranquill",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:P-A-002",
+              "name": "X Speed",
+              "score": 0.8649592224903483
+            },
+            {
+              "cardKey": "en:sv10.5b-123",
+              "name": "Golurk",
+              "score": 0.8613900534881714
+            },
+            {
+              "cardKey": "en:A2-149",
+              "name": "Lum Berry",
+              "score": 0.8584945403624951
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-026.jpg",
+          "expected": "en:sv10.5b-095",
+          "expectedName": "Foongus",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh6-214",
+              "name": "Doctor",
+              "score": 0.8004845508443493
+            },
+            {
+              "cardKey": "en:xy12-71",
+              "name": "Porygon",
+              "score": 0.7852218741592696
+            },
+            {
+              "cardKey": "en:xy12-79",
+              "name": "Maintenance",
+              "score": 0.7785271478097955
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-027.jpg",
+          "expected": "en:swsh12.5-106",
+          "expectedName": "Tauros",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swsh11-210",
+              "name": "Thorton",
+              "score": 0.8601638887260943
+            },
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.8384265507546964
+            },
+            {
+              "cardKey": "en:swsh12.5-138",
+              "name": "Pokémon Catcher",
+              "score": 0.8370547155570159
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-028.jpg",
+          "expected": "en:base1-62",
+          "expectedName": "Sandshrew",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-027",
+              "name": "Cryogonal",
+              "score": 0.6208794203890159
+            },
+            {
+              "cardKey": "en:xy12-47",
+              "name": "Gastly",
+              "score": 0.5949214334446736
+            },
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.5795202977429483
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-029.jpg",
+          "expected": "en:base1-5",
+          "expectedName": "Clefairy",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:pl3-126",
+              "name": "Shinx",
+              "score": 0.8641165875995975
+            },
+            {
+              "cardKey": "en:sv10-181",
+              "name": "TM Machine",
+              "score": 0.8639443930028586
+            },
+            {
+              "cardKey": "en:sv10.5b-037",
+              "name": "Solosis",
+              "score": 0.8615904178913618
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-030.jpg",
+          "expected": "en:sv10.5b-149",
+          "expectedName": "Tranquill",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh9-054",
+              "name": "Clefable",
+              "score": 0.8493557322607564
+            },
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.8473627082801861
+            },
+            {
+              "cardKey": "en:swsh12.5-151",
+              "name": "Volo",
+              "score": 0.8436330478351097
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-031.jpg",
+          "expected": "en:swsh12.5-060",
+          "expectedName": "Mew V",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swsh10-062",
+              "name": "Gallade",
+              "score": 0.9249779819839758
+            },
+            {
+              "cardKey": "en:sm5-62",
+              "name": "Lunala ◇",
+              "score": 0.9222529863467834
+            },
+            {
+              "cardKey": "en:swsh1-194",
+              "name": "Sableye V",
+              "score": 0.9214403951840453
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-032.jpg",
+          "expected": "en:swsh12.5-054",
+          "expectedName": "Zeraora VMAX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swshp-SWSH217",
+              "name": "Morpeko V-UNION",
+              "score": 0.9337050312994918
+            },
+            {
+              "cardKey": "en:sv03.5-006",
+              "name": "Charizard ex",
+              "score": 0.9305269951785569
+            },
+            {
+              "cardKey": "en:sv10.5b-034",
+              "name": "Zekrom ex",
+              "score": 0.9261934098333642
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-033.jpg",
+          "expected": "en:base1-22",
+          "expectedName": "Pidgeotto",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-23",
+              "name": "Poliwag",
+              "score": 0.7342322051803999
+            },
+            {
+              "cardKey": "en:sv10.5b-106",
+              "name": "Tirtouga",
+              "score": 0.6687161526182986
+            },
+            {
+              "cardKey": "en:ecard1-164",
+              "name": "Psychic Energy",
+              "score": 0.6686159171949456
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-034.jpg",
+          "expected": "en:swsh12.5-150",
+          "expectedName": "Professor's Research",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-113",
+              "name": "Tynamo",
+              "score": 0.9179770098473996
+            },
+            {
+              "cardKey": "en:pl4-SH12",
+              "name": "Shinx",
+              "score": 0.9162555764371733
+            },
+            {
+              "cardKey": "en:ex10-111",
+              "name": "Tyranitar ex",
+              "score": 0.9144087870035467
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-035.jpg",
+          "expected": "en:xy12-97",
+          "expectedName": "Darkness Energy",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:xy12-23",
+              "name": "Poliwag",
+              "score": 0.7221265733122784
+            },
+            {
+              "cardKey": "en:swsh10-177",
+              "name": "Origin Forme Dialga V",
+              "score": 0.7172280925776888
+            },
+            {
+              "cardKey": "en:cel25-6",
+              "name": "Flying Pikachu V",
+              "score": 0.7032641346230555
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-036.jpg",
+          "expected": "en:base1-39",
+          "expectedName": "Porygon",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-70",
+              "name": "Chansey",
+              "score": 0.8908872136177961
+            },
+            {
+              "cardKey": "en:xy12-71",
+              "name": "Porygon",
+              "score": 0.8735084932402587
+            },
+            {
+              "cardKey": "en:pl4-70",
+              "name": "Omanyte",
+              "score": 0.8722999349755661
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-037.jpg",
+          "expected": "en:xy12-27",
+          "expectedName": "M Slowbro EX",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9380629213670508
+            },
+            {
+              "cardKey": "en:bw9-112",
+              "name": "Latias-EX",
+              "score": 0.928510683741571
+            },
+            {
+              "cardKey": "en:xy7-46",
+              "name": "Malamar",
+              "score": 0.9256826413990584
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-038.jpg",
+          "expected": "en:base4-113",
+          "expectedName": "PlusPower",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-57",
+              "name": "Pidgey",
+              "score": 0.9115078141339491
+            },
+            {
+              "cardKey": "en:base1-81",
+              "name": "Energy Retrieval",
+              "score": 0.9098404907787296
+            },
+            {
+              "cardKey": "en:swsh12-213",
+              "name": "Gapejaw Bog",
+              "score": 0.9036102682933034
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-039.jpg",
+          "expected": "en:swsh12.5-129",
+          "expectedName": "Energy Switch",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swsh8-117",
+              "name": "Galarian Corsola",
+              "score": 0.9071366409661137
+            },
+            {
+              "cardKey": "en:swsh12.5-124",
+              "name": "Bede",
+              "score": 0.8935885561961965
+            },
+            {
+              "cardKey": "en:swsh2-75",
+              "name": "Clefable",
+              "score": 0.8646093212752294
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-040.jpg",
+          "expected": "en:sv10.5b-119",
+          "expectedName": "Duosion",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swshp-SWSH217",
+              "name": "Morpeko V-UNION",
+              "score": 0.9237596148713467
+            },
+            {
+              "cardKey": "en:xyp-XY13",
+              "name": "Machamp",
+              "score": 0.9225983687818966
+            },
+            {
+              "cardKey": "en:me04-091",
+              "name": "Xerneas",
+              "score": 0.9201717787286969
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-041.jpg",
+          "expected": "en:swsh12.5-090",
+          "expectedName": "Metang",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base1-61",
+              "name": "Rattata",
+              "score": 0.9193340647751577
+            },
+            {
+              "cardKey": "en:base4-89",
+              "name": "Rattata",
+              "score": 0.9125648708143268
+            },
+            {
+              "cardKey": "en:base4-72",
+              "name": "Doduo",
+              "score": 0.9088716893448582
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-042.jpg",
+          "expected": "en:base1-29",
+          "expectedName": "Haunter",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-037",
+              "name": "Kyogre V",
+              "score": 0.8813849715749218
+            },
+            {
+              "cardKey": "en:swsh8-282",
+              "name": "Training Court",
+              "score": 0.8806307240652116
+            },
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.8793841556239371
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-043.jpg",
+          "expected": "en:sv10.5b-127",
+          "expectedName": "Conkeldurr",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:hgss4-10",
+              "name": "Spiritomb",
+              "score": 0.8885585387461017
+            },
+            {
+              "cardKey": "en:dv1-20",
+              "name": "Super Rod",
+              "score": 0.885392734594891
+            },
+            {
+              "cardKey": "en:sm3-133",
+              "name": "Tapu Fini GX",
+              "score": 0.8843741895310842
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-044.jpg",
+          "expected": "en:cel25-12",
+          "expectedName": "Xerneas",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swshp-SWSH105",
+              "name": "Gardevoir V",
+              "score": 0.9365487185889083
+            },
+            {
+              "cardKey": "en:xy9-109",
+              "name": "Puzzle of Time",
+              "score": 0.9360464364371514
+            },
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9357355241453036
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-045.jpg",
+          "expected": "en:swsh12.5-042",
+          "expectedName": "Luxio",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv10-181",
+              "name": "TM Machine",
+              "score": 0.8486423611704808
+            },
+            {
+              "cardKey": "en:me03-072",
+              "name": "Energy Search",
+              "score": 0.8481853258926808
+            },
+            {
+              "cardKey": "en:sv10.5b-037",
+              "name": "Solosis",
+              "score": 0.8424206054705635
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-046.jpg",
+          "expected": "en:base4-31",
+          "expectedName": "Venomoth",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.8938574092591125
+            },
+            {
+              "cardKey": "en:smp-SM24",
+              "name": "Popplio",
+              "score": 0.8913584787720388
+            },
+            {
+              "cardKey": "en:xy12-71",
+              "name": "Porygon",
+              "score": 0.8892039226082182
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-047.jpg",
+          "expected": "en:base1-3",
+          "expectedName": "Chansey",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:me02.5-113",
+              "name": "Mega Lucario ex",
+              "score": 0.9313213735320189
+            },
+            {
+              "cardKey": "en:swsh4-167",
+              "name": "Zarude V",
+              "score": 0.9301922629163564
+            },
+            {
+              "cardKey": "en:sv06.5-091",
+              "name": "Munkidori ex",
+              "score": 0.9249106904590386
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-048.jpg",
+          "expected": "en:sv10.5b-102",
+          "expectedName": "Simipour",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh10-041",
+              "name": "Oshawott",
+              "score": 0.9112266871245555
+            },
+            {
+              "cardKey": "en:sv10-181",
+              "name": "TM Machine",
+              "score": 0.9025384806298103
+            },
+            {
+              "cardKey": "en:base4-61",
+              "name": "Seel",
+              "score": 0.8988914709608211
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-049.jpg",
+          "expected": "en:xy12-67",
+          "expectedName": "Raticate",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-54",
+              "name": "Sandshrew",
+              "score": 0.9586324252455904
+            },
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9440793543691435
+            },
+            {
+              "cardKey": "en:base4-101",
+              "name": "Computer Search",
+              "score": 0.9433522660013802
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-050.jpg",
+          "expected": "en:sv10.5b-114",
+          "expectedName": "Eelektrik",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-107",
+              "name": "Ditto",
+              "score": 0.8825472916771733
+            },
+            {
+              "cardKey": "en:xy5-30",
+              "name": "Horsea",
+              "score": 0.861593473940469
+            },
+            {
+              "cardKey": "en:pl4-54",
+              "name": "Bronzor",
+              "score": 0.8598721908334749
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-051.jpg",
+          "expected": "en:base4-107",
+          "expectedName": "Scoop Up",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.7824519684591877
+            },
+            {
+              "cardKey": "en:xy8-27",
+              "name": "Goldeen",
+              "score": 0.7468956421709108
+            },
+            {
+              "cardKey": "en:sv10.5b-026",
+              "name": "Beartic",
+              "score": 0.7408590612581936
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-052.jpg",
+          "expected": "en:base1-71",
+          "expectedName": "Computer Search",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base1-88",
+              "name": "Professor Oak",
+              "score": 0.9067991702071845
+            },
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9063343290933732
+            },
+            {
+              "cardKey": "en:xy12-71",
+              "name": "Porygon",
+              "score": 0.9057008413324915
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-053.jpg",
+          "expected": "en:cel25-19",
+          "expectedName": "Yveltal",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh11-130",
+              "name": "Giratina V",
+              "score": 0.9315964877263356
+            },
+            {
+              "cardKey": "en:swsh1-187",
+              "name": "Dhelmise V",
+              "score": 0.9293227851574624
+            },
+            {
+              "cardKey": "en:np-32",
+              "name": "Articuno ex",
+              "score": 0.9292998191478005
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-054.jpg",
+          "expected": "en:base4-123",
+          "expectedName": "Switch",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xy12-23",
+              "name": "Poliwag",
+              "score": 0.6854188981617491
+            },
+            {
+              "cardKey": "en:cel25-6",
+              "name": "Flying Pikachu V",
+              "score": 0.6800859258034387
+            },
+            {
+              "cardKey": "en:sv03.5-189",
+              "name": "Golem ex",
+              "score": 0.6510169998468394
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-055.jpg",
+          "expected": "en:sv10.5b-156",
+          "expectedName": "Serperior ex",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-87",
+              "name": "Pikachu",
+              "score": 0.9304149671530089
+            },
+            {
+              "cardKey": "en:base1-27",
+              "name": "Farfetch'd",
+              "score": 0.9289844620673897
+            },
+            {
+              "cardKey": "en:base1-24",
+              "name": "Charmeleon",
+              "score": 0.9266203061524096
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-056.jpg",
+          "expected": "en:xy12-16",
+          "expectedName": "Ninetales BREAK",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:B2-130",
+              "name": "Smeargle",
+              "score": 0.9293112722407142
+            },
+            {
+              "cardKey": "en:swsh7-200",
+              "name": "Copycat",
+              "score": 0.927459262118825
+            },
+            {
+              "cardKey": "en:base4-100",
+              "name": "Weedle",
+              "score": 0.9240890744323939
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-057.jpg",
+          "expected": "en:base1-20",
+          "expectedName": "Electabuzz",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base4-56",
+              "name": "Persian",
+              "score": 0.9311197053367044
+            },
+            {
+              "cardKey": "en:base1-80",
+              "name": "Defender",
+              "score": 0.9305100069822186
+            },
+            {
+              "cardKey": "en:sv10.5b-127",
+              "name": "Conkeldurr",
+              "score": 0.9261288823416348
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-058.jpg",
+          "expected": "en:sv10.5b-168",
+          "expectedName": "Excadrill ex",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sm2-57",
+              "name": "Toxapex GX",
+              "score": 0.9433661112057754
+            },
+            {
+              "cardKey": "en:me01-182",
+              "name": "Mega Kangaskhan ex",
+              "score": 0.9427285688341128
+            },
+            {
+              "cardKey": "en:sv10.5b-127",
+              "name": "Conkeldurr",
+              "score": 0.9416196969981585
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-059.jpg",
+          "expected": "en:swsh12.5-099",
+          "expectedName": "Zamazenta VSTAR",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9425658367860824
+            },
+            {
+              "cardKey": "en:xy12-54",
+              "name": "Sandshrew",
+              "score": 0.9353364106985489
+            },
+            {
+              "cardKey": "en:xy12-73",
+              "name": "Blastoise Spirit Link",
+              "score": 0.9325803791890048
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-060.jpg",
+          "expected": "en:swsh12.5-004",
+          "expectedName": "Tangela",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.788463384232968
+            },
+            {
+              "cardKey": "en:base1-82",
+              "name": "Full Heal",
+              "score": 0.782881293454054
+            },
+            {
+              "cardKey": "en:xy5-147",
+              "name": "Wailord EX",
+              "score": 0.7807597590310438
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-061.jpg",
+          "expected": "en:swsh12.5-059",
+          "expectedName": "Mewtwo",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:me03-117",
+              "name": "Wondrous Patch",
+              "score": 0.8706854886116057
+            },
+            {
+              "cardKey": "en:xy12-66",
+              "name": "Rattata",
+              "score": 0.8697742006950474
+            },
+            {
+              "cardKey": "en:sm115-39",
+              "name": "Clefairy",
+              "score": 0.8585439088747998
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-062.jpg",
+          "expected": "en:xy12-3",
+          "expectedName": "Caterpie",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-92",
+              "name": "Energy Removal",
+              "score": 0.8874038770859455
+            },
+            {
+              "cardKey": "en:base1-75",
+              "name": "Lass",
+              "score": 0.8837160270851877
+            },
+            {
+              "cardKey": "en:sv10.5b-018",
+              "name": "Simipour",
+              "score": 0.881412685382347
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-063.jpg",
+          "expected": "en:sv10.5b-138",
+          "expectedName": "Escavalier",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:B1-217",
+              "name": "Flame Patch",
+              "score": 0.8702398210167392
+            },
+            {
+              "cardKey": "en:sv03-061",
+              "name": "Finizen",
+              "score": 0.8564980009043176
+            },
+            {
+              "cardKey": "en:sv02-172",
+              "name": "Boss's Orders",
+              "score": 0.8444659514579231
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-064.jpg",
+          "expected": "en:xy12-52",
+          "expectedName": "Mewtwo EX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base1-35",
+              "name": "Magikarp",
+              "score": 0.8952575431715767
+            },
+            {
+              "cardKey": "en:svp-172",
+              "name": "Sylveon",
+              "score": 0.8926022421703672
+            },
+            {
+              "cardKey": "en:xy12-41",
+              "name": "Electabuzz",
+              "score": 0.8922247762505822
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-065.jpg",
+          "expected": "en:base4-48",
+          "expectedName": "Lickitung",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sm12-244",
+              "name": "Gallade",
+              "score": 0.9196551707957394
+            },
+            {
+              "cardKey": "en:sv10-181",
+              "name": "TM Machine",
+              "score": 0.918933298363018
+            },
+            {
+              "cardKey": "en:sm1-122",
+              "name": "Lillie",
+              "score": 0.9151655207808759
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-066.jpg",
+          "expected": "en:base4-21",
+          "expectedName": "Beedrill",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-91",
+              "name": "Sandshrew",
+              "score": 0.9251676518148708
+            },
+            {
+              "cardKey": "en:base1-76",
+              "name": "Pokémon Breeder",
+              "score": 0.9075188783794992
+            },
+            {
+              "cardKey": "en:base4-92",
+              "name": "Spearow",
+              "score": 0.9037674010672118
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-067.jpg",
+          "expected": "en:sv10.5b-153",
+          "expectedName": "Cinccino",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:bw9-60",
+              "name": "Primeape",
+              "score": 0.9344758649866285
+            },
+            {
+              "cardKey": "en:sv08-238",
+              "name": "Pikachu ex",
+              "score": 0.9307730473404955
+            },
+            {
+              "cardKey": "en:me02-077",
+              "name": "Wigglytuff",
+              "score": 0.930613446538003
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-068.jpg",
+          "expected": "en:xy12-49",
+          "expectedName": "Drowzee",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-94",
+              "name": "Lightning Energy",
+              "score": 0.5524413607463297
+            },
+            {
+              "cardKey": "en:A2b-010",
+              "name": "Charizard ex",
+              "score": 0.5503235397234534
+            },
+            {
+              "cardKey": "en:sm12-72",
+              "name": "Lanturn",
+              "score": 0.5355669428540215
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-069.jpg",
+          "expected": "en:base4-100",
+          "expectedName": "Weedle",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv04.5-034",
+              "name": "Cottonee",
+              "score": 0.6568192928208697
+            },
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.6499041326347713
+            },
+            {
+              "cardKey": "en:sv10.5b-114",
+              "name": "Eelektrik",
+              "score": 0.646428762962591
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-070.jpg",
+          "expected": "en:base4-124",
+          "expectedName": "Double Colorless Energy",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-154",
+              "name": "Water Energy",
+              "score": 0.8381230966663953
+            },
+            {
+              "cardKey": "en:bw10-72",
+              "name": "Porygon",
+              "score": 0.8333081000093772
+            },
+            {
+              "cardKey": "en:ecard1-164",
+              "name": "Psychic Energy",
+              "score": 0.8256734940590074
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-071.jpg",
+          "expected": "en:base1-2",
+          "expectedName": "Blastoise",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-76",
+              "name": "Pokémon Breeder",
+              "score": 0.9276565241309402
+            },
+            {
+              "cardKey": "en:xy12-66",
+              "name": "Rattata",
+              "score": 0.9247651491381322
+            },
+            {
+              "cardKey": "en:base1-79",
+              "name": "Super Energy Removal",
+              "score": 0.9151717266091309
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-072.jpg",
+          "expected": "en:base4-14",
+          "expectedName": "Pidgeot",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.792355718508506
+            },
+            {
+              "cardKey": "en:neo3-22",
+              "name": "Raikou",
+              "score": 0.774973909029983
+            },
+            {
+              "cardKey": "en:swsh10-177",
+              "name": "Origin Forme Dialga V",
+              "score": 0.7733391463376122
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-073.jpg",
+          "expected": "en:sv10.5b-142",
+          "expectedName": "Pawniard",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh6-214",
+              "name": "Doctor",
+              "score": 0.7727972252536203
+            },
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.7675965346750049
+            },
+            {
+              "cardKey": "en:swsh11-210",
+              "name": "Thorton",
+              "score": 0.7647859000185612
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-074.jpg",
+          "expected": "en:sv10.5b-092",
+          "expectedName": "Lilligant",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:A2a-093",
+              "name": "Garchomp ex",
+              "score": 0.9149742984423981
+            },
+            {
+              "cardKey": "en:sv06-089",
+              "name": "Swirlix",
+              "score": 0.914444916331926
+            },
+            {
+              "cardKey": "en:sv10.5b-034",
+              "name": "Zekrom ex",
+              "score": 0.9140076066854517
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-075.jpg",
+          "expected": "en:sv10.5b-120",
+          "expectedName": "Elgyem",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:xy12-76",
+              "name": "Devolution Spray",
+              "score": 0.9065010542194799
+            },
+            {
+              "cardKey": "en:dp6-75",
+              "name": "Tentacruel",
+              "score": 0.9016405509993606
+            },
+            {
+              "cardKey": "en:base1-57",
+              "name": "Pidgey",
+              "score": 0.8930983693459539
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-076.jpg",
+          "expected": "en:sv10.5b-023",
+          "expectedName": "Carracosta",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-009",
+              "name": "Yanmega",
+              "score": 0.8824551293950154
+            },
+            {
+              "cardKey": "en:xy12-76",
+              "name": "Devolution Spray",
+              "score": 0.87914659845297
+            },
+            {
+              "cardKey": "en:me02.5-113",
+              "name": "Mega Lucario ex",
+              "score": 0.8740490323519213
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-077.jpg",
+          "expected": "en:swsh12.5-157",
+          "expectedName": "Fighting Energy",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swshp-SWSH216",
+              "name": "Morpeko V-UNION",
+              "score": 0.9174759057655951
+            },
+            {
+              "cardKey": "en:g1-29",
+              "name": "Zapdos",
+              "score": 0.8985692368550247
+            },
+            {
+              "cardKey": "en:sv08-239",
+              "name": "Latias ex",
+              "score": 0.8961209274084099
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-078.jpg",
+          "expected": "en:base1-85",
+          "expectedName": "Pokémon Center",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9416757371935932
+            },
+            {
+              "cardKey": "en:xy12-69",
+              "name": "Doduo",
+              "score": 0.9318170918770734
+            },
+            {
+              "cardKey": "en:swsh10-067",
+              "name": "Azelf",
+              "score": 0.9312017336144359
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-079.jpg",
+          "expected": "en:base4-6",
+          "expectedName": "Clefairy",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-57",
+              "name": "Pidgey",
+              "score": 0.9464973201711414
+            },
+            {
+              "cardKey": "en:base4-56",
+              "name": "Persian",
+              "score": 0.9337814174988375
+            },
+            {
+              "cardKey": "en:dp1-18",
+              "name": "Azumarill",
+              "score": 0.9307911377020005
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-080.jpg",
+          "expected": "en:xy12-84",
+          "expectedName": "Professor Oak's Hint",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sv03-151",
+              "name": "Togedemaru",
+              "score": 0.5830187224206871
+            },
+            {
+              "cardKey": "en:xy12-94",
+              "name": "Lightning Energy",
+              "score": 0.5236919988784596
+            },
+            {
+              "cardKey": "en:xy9-112",
+              "name": "Tierno",
+              "score": 0.4944972731794865
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-081.jpg",
+          "expected": "en:swsh12.5-045",
+          "expectedName": "Rotom V",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy1-51",
+              "name": "Venipede",
+              "score": 0.8876459055519411
+            },
+            {
+              "cardKey": "en:xy5-30",
+              "name": "Horsea",
+              "score": 0.8735344108265796
+            },
+            {
+              "cardKey": "en:ex6-67",
+              "name": "Magikarp",
+              "score": 0.8682268893689097
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-082.jpg",
+          "expected": "en:base1-31",
+          "expectedName": "Jynx",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.9201917591365377
+            },
+            {
+              "cardKey": "en:base4-15",
+              "name": "Poliwrath",
+              "score": 0.8859261704717349
+            },
+            {
+              "cardKey": "en:sv03.5-097",
+              "name": "Hypno",
+              "score": 0.8827643669370451
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-083.jpg",
+          "expected": "en:xy12-32",
+          "expectedName": "Starmie BREAK",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.7548071088585213
+            },
+            {
+              "cardKey": "en:ex9-71",
+              "name": "Voltorb",
+              "score": 0.7491188992005025
+            },
+            {
+              "cardKey": "en:ecard1-164",
+              "name": "Psychic Energy",
+              "score": 0.7433105373849302
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-084.jpg",
+          "expected": "en:xy12-13",
+          "expectedName": "M Charizard EX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:dp6-75",
+              "name": "Tentacruel",
+              "score": 0.9239502773226784
+            },
+            {
+              "cardKey": "en:me02.5-113",
+              "name": "Mega Lucario ex",
+              "score": 0.9220823475942751
+            },
+            {
+              "cardKey": "en:me03-102",
+              "name": "Mega Starmie ex",
+              "score": 0.9211937742534755
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-085.jpg",
+          "expected": "en:base1-46",
+          "expectedName": "Charmander",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-159",
+              "name": "Metal Energy",
+              "score": 0.7884914877112648
+            },
+            {
+              "cardKey": "en:sm1-163",
+              "name": "Metal Energy",
+              "score": 0.78594619185025
+            },
+            {
+              "cardKey": "en:swsh11-210",
+              "name": "Thorton",
+              "score": 0.7750560538669659
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-086.jpg",
+          "expected": "en:sv10.5b-001",
+          "expectedName": "Snivy",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh5-135",
+              "name": "Sordward & Shielbert",
+              "score": 0.8306422096882793
+            },
+            {
+              "cardKey": "en:swsh12.5-156",
+              "name": "Psychic Energy",
+              "score": 0.8100850134367515
+            },
+            {
+              "cardKey": "en:sv10.5b-007",
+              "name": "Lilligant",
+              "score": 0.8091028954537467
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-087.jpg",
+          "expected": "en:sv10.5b-066",
+          "expectedName": "Cobalion",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-72",
+              "name": "Doduo",
+              "score": 0.912233336154449
+            },
+            {
+              "cardKey": "en:ex9-67",
+              "name": "Swablu",
+              "score": 0.9073176810759044
+            },
+            {
+              "cardKey": "en:ex10-75",
+              "name": "Spinarak",
+              "score": 0.8991509336008988
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-088.jpg",
+          "expected": "en:sv10.5b-030",
+          "expectedName": "Tynamo",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:me04-098",
+              "name": "Beedrill ex",
+              "score": 0.9035487639714586
+            },
+            {
+              "cardKey": "en:sv06-189",
+              "name": "Sinistcha ex",
+              "score": 0.9035226317124246
+            },
+            {
+              "cardKey": "en:base1-83",
+              "name": "Maintenance",
+              "score": 0.9026627001744848
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-089.jpg",
+          "expected": "en:swsh12.5-096",
+          "expectedName": "Zacian VSTAR",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh8-214",
+              "name": "Bunnelby",
+              "score": 0.8596290830793963
+            },
+            {
+              "cardKey": "en:B1a-025",
+              "name": "Magneton",
+              "score": 0.8587741032670044
+            },
+            {
+              "cardKey": "en:neo2-63",
+              "name": "Sentret",
+              "score": 0.8552316489770533
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-090.jpg",
+          "expected": "en:sv10.5b-058",
+          "expectedName": "Krokorok",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sv03.5-073",
+              "name": "Tentacruel",
+              "score": 0.9327370089876785
+            },
+            {
+              "cardKey": "en:swshp-SWSH132",
+              "name": "Dragapult",
+              "score": 0.9199479007331736
+            },
+            {
+              "cardKey": "en:swsh12.5-149",
+              "name": "Friends in Sinnoh",
+              "score": 0.9173728240408493
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-091.jpg",
+          "expected": "en:base1-37",
+          "expectedName": "Nidorino",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-33",
+              "name": "Kakuna",
+              "score": 0.9569618794400029
+            },
+            {
+              "cardKey": "en:base4-51",
+              "name": "Magmar",
+              "score": 0.9535845364555556
+            },
+            {
+              "cardKey": "en:base1-34",
+              "name": "Machoke",
+              "score": 0.9513479842191086
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-092.jpg",
+          "expected": "en:swsh12.5-057",
+          "expectedName": "Exeggcute",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-78",
+              "name": "Full Heal",
+              "score": 0.8526789230968406
+            },
+            {
+              "cardKey": "en:swsh12.5-138",
+              "name": "Pokémon Catcher",
+              "score": 0.8522493992449274
+            },
+            {
+              "cardKey": "en:A2-074",
+              "name": "Drifblim",
+              "score": 0.8464759999406293
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-093.jpg",
+          "expected": "en:swsh12.5-072",
+          "expectedName": "Pancham",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv10-181",
+              "name": "TM Machine",
+              "score": 0.872935485833562
+            },
+            {
+              "cardKey": "en:svp-137",
+              "name": "Horsea",
+              "score": 0.8645691312822963
+            },
+            {
+              "cardKey": "en:base1-101",
+              "name": "Psychic Energy",
+              "score": 0.8631020661575727
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-094.jpg",
+          "expected": "en:sv10.5b-088",
+          "expectedName": "Servine",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sm10-148",
+              "name": "Persian",
+              "score": 0.9242412431895641
+            },
+            {
+              "cardKey": "en:swshp-SWSH217",
+              "name": "Morpeko V-UNION",
+              "score": 0.911628328791833
+            },
+            {
+              "cardKey": "en:base4-30",
+              "name": "Snorlax",
+              "score": 0.9093285406741489
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-095.jpg",
+          "expected": "en:sv10.5b-021",
+          "expectedName": "Seismitoad",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:gym1-25",
+              "name": "Erika's Clefairy",
+              "score": 0.8876879491235422
+            },
+            {
+              "cardKey": "en:sv10.5b-011",
+              "name": "Amoonguss",
+              "score": 0.8866454267373525
+            },
+            {
+              "cardKey": "en:swshp-SWSH224",
+              "name": "Melmetal V",
+              "score": 0.8840894517880623
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-096.jpg",
+          "expected": "en:xy12-43",
+          "expectedName": "Nidoran♂",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:30th-058",
+              "name": "Toxel",
+              "score": 0.5797854046096316
+            },
+            {
+              "cardKey": "en:pop1-3",
+              "name": "Rayquaza",
+              "score": 0.5736088138340972
+            },
+            {
+              "cardKey": "en:xy12-95",
+              "name": "Psychic Energy",
+              "score": 0.5623379480625199
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-097.jpg",
+          "expected": "en:swsh12.5-098",
+          "expectedName": "Zamazenta V",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh1-119",
+              "name": "Galarian Obstagoon",
+              "score": 0.9453006195711648
+            },
+            {
+              "cardKey": "en:swsh10-179",
+              "name": "Oranguru V",
+              "score": 0.9371215369735147
+            },
+            {
+              "cardKey": "en:xy4-102",
+              "name": "Robo Substitute Team Flare Gear",
+              "score": 0.9363149561235546
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-098.jpg",
+          "expected": "en:base1-80",
+          "expectedName": "Defender",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-86",
+              "name": "Pokémon Flute",
+              "score": 0.9280826780544423
+            },
+            {
+              "cardKey": "en:base4-117",
+              "name": "Super Potion",
+              "score": 0.9261375698357345
+            },
+            {
+              "cardKey": "en:sm11-98",
+              "name": "Salandit",
+              "score": 0.9253493940145698
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-099.jpg",
+          "expected": "en:sv10.5b-029",
+          "expectedName": "Emolga",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-59",
+              "name": "Poliwag",
+              "score": 0.9565796835626412
+            },
+            {
+              "cardKey": "en:sv08-050",
+              "name": "Quaxly",
+              "score": 0.9485763235641145
+            },
+            {
+              "cardKey": "en:base1-55",
+              "name": "Nidoran♂",
+              "score": 0.9454952809898519
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-100.jpg",
+          "expected": "en:base1-14",
+          "expectedName": "Raichu",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-123",
+              "name": "Bea",
+              "score": 0.7582399644901425
+            },
+            {
+              "cardKey": "en:sv10.5b-123",
+              "name": "Golurk",
+              "score": 0.7515794856162257
+            },
+            {
+              "cardKey": "en:xy10-60",
+              "name": "Bronzor",
+              "score": 0.7408112661843527
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "real",
+      "modelId": "Xenova/mobileclip_s0",
+      "modelLabel": "MobileCLIP S0",
+      "preprocessing": "whole",
+      "queryCount": 0,
+      "status": "not available: add labeled photos to photos/labels.csv",
+      "dimension": 512
+    },
+    {
+      "dataset": "synthetic",
+      "modelId": "Xenova/mobileclip_s0",
+      "modelLabel": "MobileCLIP S0",
+      "preprocessing": "center-crop",
+      "queryCount": 100,
+      "dimension": 512,
+      "float32": {
+        "exactTop1": 0.01,
+        "exactTop5": 0.05,
+        "exactTop10": 0.07,
+        "sameArtworkTop1": 0.01,
+        "sameArtworkTop5": 0.08,
+        "sameArtworkTop10": 0.1
+      },
+      "int8": {
+        "exactTop1": 0.01,
+        "exactTop5": 0.05,
+        "exactTop10": 0.07,
+        "sameArtworkTop1": 0.01,
+        "sameArtworkTop5": 0.08,
+        "sameArtworkTop10": 0.1
+      },
+      "latency": {
+        "endToEnd": {
+          "medianMs": 84.79390000000058,
+          "p95Ms": 91.86070000000109
+        },
+        "preprocessing": {
+          "medianMs": 11.173100000001796,
+          "p95Ms": 12.882200000000012
+        },
+        "embedding": {
+          "medianMs": 69.53429999999935,
+          "p95Ms": 75.00409999999829
+        }
+      },
+      "failures": [
+        {
+          "filename": "synthetic-queries/query-001.jpg",
+          "expected": "en:swsh12.5-128",
+          "expectedName": "Energy Search",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base4-117",
+              "name": "Super Potion",
+              "score": 0.921156295129246
+            },
+            {
+              "cardKey": "en:dp4-34",
+              "name": "Cacturne",
+              "score": 0.9129991698799095
+            },
+            {
+              "cardKey": "en:base4-119",
+              "name": "Energy Removal",
+              "score": 0.9097294397129139
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-002.jpg",
+          "expected": "en:base1-26",
+          "expectedName": "Dratini",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.8959925776244003
+            },
+            {
+              "cardKey": "en:base4-38",
+              "name": "Dratini",
+              "score": 0.8653025208489815
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.8635805322488993
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-003.jpg",
+          "expected": "en:base4-32",
+          "expectedName": "Victreebel",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-30",
+              "name": "Snorlax",
+              "score": 0.9028505192572752
+            },
+            {
+              "cardKey": "en:sv10.5b-038",
+              "name": "Duosion",
+              "score": 0.9023873200619594
+            },
+            {
+              "cardKey": "en:ex16-21",
+              "name": "Pichu",
+              "score": 0.892219891401757
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-004.jpg",
+          "expected": "en:base4-34",
+          "expectedName": "Butterfree",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base4-30",
+              "name": "Snorlax",
+              "score": 0.933175393918638
+            },
+            {
+              "cardKey": "en:base1-27",
+              "name": "Farfetch'd",
+              "score": 0.9277285869666503
+            },
+            {
+              "cardKey": "en:base4-66",
+              "name": "Bellsprout",
+              "score": 0.9165416909310408
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-005.jpg",
+          "expected": "en:cel25-18",
+          "expectedName": "Zamazenta V",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:neo2-53",
+              "name": "Caterpie",
+              "score": 0.9158521770075908
+            },
+            {
+              "cardKey": "en:A3-003",
+              "name": "Surskit",
+              "score": 0.9083892511414273
+            },
+            {
+              "cardKey": "en:swsh12.5-038",
+              "name": "Glaceon V",
+              "score": 0.9082584921311613
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-006.jpg",
+          "expected": "en:xy12-89",
+          "expectedName": "Venusaur Spirit Link",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xy12-29",
+              "name": "Dewgong",
+              "score": 0.8694856334090608
+            },
+            {
+              "cardKey": "en:xy9-122",
+              "name": "Skyla",
+              "score": 0.8656856016000716
+            },
+            {
+              "cardKey": "en:swsh7-206",
+              "name": "Trevenant VMAX",
+              "score": 0.8639597916279469
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-007.jpg",
+          "expected": "en:sv10.5b-129",
+          "expectedName": "Dwebble",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.9197843322184993
+            },
+            {
+              "cardKey": "en:base1-48",
+              "name": "Doduo",
+              "score": 0.9134743070550655
+            },
+            {
+              "cardKey": "en:base1-67",
+              "name": "Voltorb",
+              "score": 0.9110475652661519
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-008.jpg",
+          "expected": "en:swsh12.5-001",
+          "expectedName": "Oddish",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:ex9-71",
+              "name": "Voltorb",
+              "score": 0.8186547874935572
+            },
+            {
+              "cardKey": "en:base4-126",
+              "name": "Fire Energy",
+              "score": 0.8118656985502968
+            },
+            {
+              "cardKey": "en:sv10.5b-117",
+              "name": "Musharna",
+              "score": 0.8096241662849832
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-009.jpg",
+          "expected": "en:swsh12.5-119",
+          "expectedName": "Oranguru",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:ex6-64",
+              "name": "Growlithe",
+              "score": 0.8349118896557542
+            },
+            {
+              "cardKey": "en:ecard3-84",
+              "name": "Pikachu",
+              "score": 0.8219547358053845
+            },
+            {
+              "cardKey": "en:swsh11-192",
+              "name": "Iscan",
+              "score": 0.8204142441513095
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-010.jpg",
+          "expected": "en:base1-49",
+          "expectedName": "Drowzee",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-079",
+              "name": "Air Balloon",
+              "score": 0.493703078736232
+            },
+            {
+              "cardKey": "en:xy12-93",
+              "name": "Water Energy",
+              "score": 0.42160659960280733
+            },
+            {
+              "cardKey": "en:ecard2-76",
+              "name": "Exeggcute",
+              "score": 0.41314584067456145
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-011.jpg",
+          "expected": "en:base1-50",
+          "expectedName": "Gastly",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.8514563953567489
+            },
+            {
+              "cardKey": "en:xy1-91",
+              "name": "Mr. Mime",
+              "score": 0.8411398091593076
+            },
+            {
+              "cardKey": "en:ecard3-145",
+              "name": "Celebi",
+              "score": 0.840174987702901
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-012.jpg",
+          "expected": "en:sv10.5b-051",
+          "expectedName": "Dwebble",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:A4-121",
+              "name": "Forretress",
+              "score": 0.9140023278069949
+            },
+            {
+              "cardKey": "en:xy10-83",
+              "name": "Altaria EX",
+              "score": 0.9132885820662207
+            },
+            {
+              "cardKey": "en:base4-58",
+              "name": "Raticate",
+              "score": 0.9112192511284166
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-013.jpg",
+          "expected": "en:base4-8",
+          "expectedName": "Hitmonchan",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-66",
+              "name": "Rattata",
+              "score": 0.9137641393091802
+            },
+            {
+              "cardKey": "en:base4-66",
+              "name": "Bellsprout",
+              "score": 0.9100489141128753
+            },
+            {
+              "cardKey": "en:base4-61",
+              "name": "Seel",
+              "score": 0.9070098967975821
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-015.jpg",
+          "expected": "en:sv10.5b-124",
+          "expectedName": "Drilbur",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.8304557268070286
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.8227014955071129
+            },
+            {
+              "cardKey": "en:base1-92",
+              "name": "Energy Removal",
+              "score": 0.8184419527566061
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-016.jpg",
+          "expected": "en:sv10.5b-139",
+          "expectedName": "Klink",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:bwp-BW37",
+              "name": "Kyurem-EX",
+              "score": 0.9445508867903893
+            },
+            {
+              "cardKey": "en:swsh10-179",
+              "name": "Oranguru V",
+              "score": 0.9424015033079239
+            },
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.9402104525053405
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-018.jpg",
+          "expected": "en:sv10.5b-165",
+          "expectedName": "Kyurem ex",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:me02-109",
+              "name": "Mega Charizard X ex",
+              "score": 0.9132430339650831
+            },
+            {
+              "cardKey": "en:sv10.5b-110",
+              "name": "Beartic",
+              "score": 0.9065452860967615
+            },
+            {
+              "cardKey": "en:base4-117",
+              "name": "Super Potion",
+              "score": 0.9056418848808189
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-019.jpg",
+          "expected": "en:base4-46",
+          "expectedName": "Kadabra",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-10",
+              "name": "Mewtwo",
+              "score": 0.9263365611632927
+            },
+            {
+              "cardKey": "en:neo4-9",
+              "name": "Dark Scizor",
+              "score": 0.926241212434378
+            },
+            {
+              "cardKey": "en:bw4-60",
+              "name": "Darmanitan",
+              "score": 0.9231107638094262
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-020.jpg",
+          "expected": "en:xy12-56",
+          "expectedName": "Dugtrio",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sv01-101",
+              "name": "Flittle",
+              "score": 0.8747685120951428
+            },
+            {
+              "cardKey": "en:sm3-60",
+              "name": "Meowstic",
+              "score": 0.8731762664460737
+            },
+            {
+              "cardKey": "en:sv10.5b-031",
+              "name": "Eelektrik",
+              "score": 0.8706236518016292
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-022.jpg",
+          "expected": "en:xy12-20",
+          "expectedName": "Magmar",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sm6-54",
+              "name": "Hoopa",
+              "score": 0.9212546687994473
+            },
+            {
+              "cardKey": "en:xy8-90",
+              "name": "Zorua",
+              "score": 0.916243400086257
+            },
+            {
+              "cardKey": "en:dp6-54",
+              "name": "Exeggutor",
+              "score": 0.9147214941203327
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-024.jpg",
+          "expected": "en:xy12-71",
+          "expectedName": "Porygon",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:neo3-58",
+              "name": "Unown [K]",
+              "score": 0.9129860454180818
+            },
+            {
+              "cardKey": "en:base4-63",
+              "name": "Wartortle",
+              "score": 0.9115896450747603
+            },
+            {
+              "cardKey": "en:base1-25",
+              "name": "Dewgong",
+              "score": 0.9102888841012757
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-025.jpg",
+          "expected": "en:sv10.5b-072",
+          "expectedName": "Tranquill",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-038",
+              "name": "Duosion",
+              "score": 0.9152210653456125
+            },
+            {
+              "cardKey": "en:dp4-86",
+              "name": "Swablu",
+              "score": 0.9054476989970721
+            },
+            {
+              "cardKey": "en:ex3-20",
+              "name": "Shelgon",
+              "score": 0.9046407997644923
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-026.jpg",
+          "expected": "en:sv10.5b-095",
+          "expectedName": "Foongus",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh4-192",
+              "name": "Allister",
+              "score": 0.861600748530969
+            },
+            {
+              "cardKey": "en:base4-38",
+              "name": "Dratini",
+              "score": 0.855820833336406
+            },
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.8535108820566571
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-027.jpg",
+          "expected": "en:swsh12.5-106",
+          "expectedName": "Tauros",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swsh1-5",
+              "name": "Cottonee",
+              "score": 0.8388974849379702
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.8353224922734923
+            },
+            {
+              "cardKey": "en:sv10.5b-013",
+              "name": "Darumaka",
+              "score": 0.8345045024759626
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-028.jpg",
+          "expected": "en:base1-62",
+          "expectedName": "Sandshrew",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sma-SV23",
+              "name": "Rockruff",
+              "score": 0.6484364354169798
+            },
+            {
+              "cardKey": "en:base4-128",
+              "name": "Lightning Energy",
+              "score": 0.60223633734265
+            },
+            {
+              "cardKey": "en:swsh12.5-132",
+              "name": "Great Ball",
+              "score": 0.5849455222235881
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-029.jpg",
+          "expected": "en:base1-5",
+          "expectedName": "Clefairy",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.8626882628359219
+            },
+            {
+              "cardKey": "en:base1-65",
+              "name": "Staryu",
+              "score": 0.8576390425411435
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.8425006548273949
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-030.jpg",
+          "expected": "en:sv10.5b-149",
+          "expectedName": "Tranquill",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xy12-23",
+              "name": "Poliwag",
+              "score": 0.8552703166516493
+            },
+            {
+              "cardKey": "en:sv01-142",
+              "name": "Revavroom",
+              "score": 0.8506946038788415
+            },
+            {
+              "cardKey": "en:sm11-228",
+              "name": "Garchomp & Giratina GX",
+              "score": 0.8492298104248388
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-031.jpg",
+          "expected": "en:swsh12.5-060",
+          "expectedName": "Mew V",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv03.5-110",
+              "name": "Weezing",
+              "score": 0.9306907777976143
+            },
+            {
+              "cardKey": "en:me03-102",
+              "name": "Mega Starmie ex",
+              "score": 0.9189958452698663
+            },
+            {
+              "cardKey": "en:neo4-9",
+              "name": "Dark Scizor",
+              "score": 0.9189592085357845
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-032.jpg",
+          "expected": "en:swsh12.5-054",
+          "expectedName": "Zeraora VMAX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-67",
+              "name": "Raticate",
+              "score": 0.9218016983803633
+            },
+            {
+              "cardKey": "en:base4-61",
+              "name": "Seel",
+              "score": 0.921314205891443
+            },
+            {
+              "cardKey": "en:sv10.5b-119",
+              "name": "Duosion",
+              "score": 0.9196715811656652
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-033.jpg",
+          "expected": "en:base1-22",
+          "expectedName": "Pidgeotto",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:swsh11-192",
+              "name": "Iscan",
+              "score": 0.7935252976733009
+            },
+            {
+              "cardKey": "en:A2a-007",
+              "name": "Cherrim",
+              "score": 0.7903192823382204
+            },
+            {
+              "cardKey": "en:ex8-54",
+              "name": "Barboach",
+              "score": 0.782981588917539
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-034.jpg",
+          "expected": "en:swsh12.5-150",
+          "expectedName": "Professor's Research",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xyp-XY64",
+              "name": "Rayquaza",
+              "score": 0.9325656509605866
+            },
+            {
+              "cardKey": "en:xy12-43",
+              "name": "Nidoran♂",
+              "score": 0.9288076726987696
+            },
+            {
+              "cardKey": "en:xy2-21",
+              "name": "Qwilfish",
+              "score": 0.9244144769848397
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-035.jpg",
+          "expected": "en:xy12-97",
+          "expectedName": "Darkness Energy",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:A2-067",
+              "name": "Mismagius ex",
+              "score": 0.7718056143334623
+            },
+            {
+              "cardKey": "en:A1a-005",
+              "name": "Servine",
+              "score": 0.7649292789081645
+            },
+            {
+              "cardKey": "en:swsh12.5-152",
+              "name": "Grass Energy",
+              "score": 0.7626869070209457
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-036.jpg",
+          "expected": "en:base1-39",
+          "expectedName": "Porygon",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:me04-083",
+              "name": "Transformation Tome",
+              "score": 0.871332639627017
+            },
+            {
+              "cardKey": "en:swsh10-190",
+              "name": "Hisuian Lilligant VSTAR",
+              "score": 0.8698771123397494
+            },
+            {
+              "cardKey": "en:base4-40",
+              "name": "Farfetch'd",
+              "score": 0.8684426687386546
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-037.jpg",
+          "expected": "en:xy12-27",
+          "expectedName": "M Slowbro EX",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:svp-067",
+              "name": "Roaring Moon ex",
+              "score": 0.9241821593317154
+            },
+            {
+              "cardKey": "en:sv06.5-038",
+              "name": "Fezandipiti ex",
+              "score": 0.923104971494293
+            },
+            {
+              "cardKey": "en:base1-13",
+              "name": "Poliwrath",
+              "score": 0.9220457388858403
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-038.jpg",
+          "expected": "en:base4-113",
+          "expectedName": "PlusPower",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:neo4-9",
+              "name": "Dark Scizor",
+              "score": 0.8981192849093433
+            },
+            {
+              "cardKey": "en:base1-79",
+              "name": "Super Energy Removal",
+              "score": 0.8957549125445023
+            },
+            {
+              "cardKey": "en:xy5-91",
+              "name": "Sharpedo EX",
+              "score": 0.8938458734857905
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-039.jpg",
+          "expected": "en:swsh12.5-129",
+          "expectedName": "Energy Switch",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv02-172",
+              "name": "Boss's Orders",
+              "score": 0.9276209038608214
+            },
+            {
+              "cardKey": "en:xy12-85",
+              "name": "Revive",
+              "score": 0.9097081949453036
+            },
+            {
+              "cardKey": "en:sv10-108",
+              "name": "Mudsdale",
+              "score": 0.909245523037761
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-040.jpg",
+          "expected": "en:sv10.5b-119",
+          "expectedName": "Duosion",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sv04-124",
+              "name": "Roaring Moon ex",
+              "score": 0.9435768169258458
+            },
+            {
+              "cardKey": "en:me04-091",
+              "name": "Xerneas",
+              "score": 0.9415189596491974
+            },
+            {
+              "cardKey": "en:sv07-014",
+              "name": "Hydrapple ex",
+              "score": 0.9368347676667859
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-041.jpg",
+          "expected": "en:swsh12.5-090",
+          "expectedName": "Metang",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base4-40",
+              "name": "Farfetch'd",
+              "score": 0.8794178168187625
+            },
+            {
+              "cardKey": "en:base1-61",
+              "name": "Rattata",
+              "score": 0.8726282275137694
+            },
+            {
+              "cardKey": "en:base1-52",
+              "name": "Machop",
+              "score": 0.8711620460252623
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-042.jpg",
+          "expected": "en:base1-29",
+          "expectedName": "Haunter",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:gym1-56",
+              "name": "Misty's Starmie",
+              "score": 0.8382161675997617
+            },
+            {
+              "cardKey": "en:A2-067",
+              "name": "Mismagius ex",
+              "score": 0.8274684893057278
+            },
+            {
+              "cardKey": "en:base4-125",
+              "name": "Fighting Energy",
+              "score": 0.8216923212102115
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-043.jpg",
+          "expected": "en:sv10.5b-127",
+          "expectedName": "Conkeldurr",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-79",
+              "name": "Super Energy Removal",
+              "score": 0.9310468945747222
+            },
+            {
+              "cardKey": "en:A4-208",
+              "name": "Umbreon ex",
+              "score": 0.9231012352149214
+            },
+            {
+              "cardKey": "en:sm3-84",
+              "name": "Alolan Muk GX",
+              "score": 0.9200381927215708
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-044.jpg",
+          "expected": "en:cel25-12",
+          "expectedName": "Xerneas",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:base1-25",
+              "name": "Dewgong",
+              "score": 0.9116760637811927
+            },
+            {
+              "cardKey": "en:sv10.5b-146",
+              "name": "Fraxure",
+              "score": 0.9028220723848229
+            },
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.9008888816072171
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-045.jpg",
+          "expected": "en:swsh12.5-042",
+          "expectedName": "Luxio",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.8587362380091648
+            },
+            {
+              "cardKey": "en:base4-126",
+              "name": "Fire Energy",
+              "score": 0.8573365832635076
+            },
+            {
+              "cardKey": "en:base4-127",
+              "name": "Grass Energy",
+              "score": 0.8568960047936717
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-046.jpg",
+          "expected": "en:base4-31",
+          "expectedName": "Venomoth",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-40",
+              "name": "Farfetch'd",
+              "score": 0.9275926253876177
+            },
+            {
+              "cardKey": "en:base1-77",
+              "name": "Pokémon Trader",
+              "score": 0.9145848593096269
+            },
+            {
+              "cardKey": "en:base1-22",
+              "name": "Pidgeotto",
+              "score": 0.91095058506918
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-047.jpg",
+          "expected": "en:base1-3",
+          "expectedName": "Chansey",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-13",
+              "name": "Ninetales",
+              "score": 0.9399472730845004
+            },
+            {
+              "cardKey": "en:sm5-62",
+              "name": "Lunala ◇",
+              "score": 0.936260928237735
+            },
+            {
+              "cardKey": "en:base4-45",
+              "name": "Jynx",
+              "score": 0.9348293216205683
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-048.jpg",
+          "expected": "en:sv10.5b-102",
+          "expectedName": "Simipour",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:ex2-52",
+              "name": "Vigoroth",
+              "score": 0.893723364539843
+            },
+            {
+              "cardKey": "en:sv10.5b-033",
+              "name": "Thundurus",
+              "score": 0.8878931077423885
+            },
+            {
+              "cardKey": "en:dp4-48",
+              "name": "Pelipper",
+              "score": 0.8874149139710003
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-049.jpg",
+          "expected": "en:xy12-67",
+          "expectedName": "Raticate",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-10",
+              "name": "Charmeleon",
+              "score": 0.9471974102768619
+            },
+            {
+              "cardKey": "en:xy12-24",
+              "name": "Poliwhirl",
+              "score": 0.9360149962486172
+            },
+            {
+              "cardKey": "en:xy12-65",
+              "name": "M Pidgeot EX",
+              "score": 0.9345598552766758
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-050.jpg",
+          "expected": "en:sv10.5b-114",
+          "expectedName": "Eelektrik",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sm12-141",
+              "name": "Probopass",
+              "score": 0.9282230930369254
+            },
+            {
+              "cardKey": "en:pl2-62",
+              "name": "Gliscor E4",
+              "score": 0.9231672045143922
+            },
+            {
+              "cardKey": "en:xyp-XY50",
+              "name": "Pangoro",
+              "score": 0.9202939177980605
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-052.jpg",
+          "expected": "en:base1-71",
+          "expectedName": "Computer Search",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sm9-151",
+              "name": "Nita",
+              "score": 0.8534256182143585
+            },
+            {
+              "cardKey": "en:base4-63",
+              "name": "Wartortle",
+              "score": 0.8534121529995261
+            },
+            {
+              "cardKey": "en:ex1-83",
+              "name": "Lady Outing",
+              "score": 0.8518200694278374
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-053.jpg",
+          "expected": "en:cel25-19",
+          "expectedName": "Yveltal",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:30th-143",
+              "name": "Kommo-o",
+              "score": 0.9492759638411753
+            },
+            {
+              "cardKey": "en:swsh1-130",
+              "name": "Ferroseed",
+              "score": 0.938197069493992
+            },
+            {
+              "cardKey": "en:A4a-082",
+              "name": "Poliwrath ex",
+              "score": 0.9379758151938613
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-054.jpg",
+          "expected": "en:base4-123",
+          "expectedName": "Switch",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-079",
+              "name": "Air Balloon",
+              "score": 0.5330290910707052
+            },
+            {
+              "cardKey": "en:swsh7-235",
+              "name": "Lightning Energy",
+              "score": 0.5253404072502271
+            },
+            {
+              "cardKey": "en:xy12-93",
+              "name": "Water Energy",
+              "score": 0.5062699986153953
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-055.jpg",
+          "expected": "en:sv10.5b-156",
+          "expectedName": "Serperior ex",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-22",
+              "name": "Pidgeotto",
+              "score": 0.9238669693750073
+            },
+            {
+              "cardKey": "en:base4-40",
+              "name": "Farfetch'd",
+              "score": 0.922653730024858
+            },
+            {
+              "cardKey": "en:xy12-10",
+              "name": "Charmeleon",
+              "score": 0.9211298621613582
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-056.jpg",
+          "expected": "en:xy12-16",
+          "expectedName": "Ninetales BREAK",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:hgss4-37",
+              "name": "Lairon",
+              "score": 0.9363737251759943
+            },
+            {
+              "cardKey": "en:xy8-92",
+              "name": "Zoroark BREAK",
+              "score": 0.9147195445150185
+            },
+            {
+              "cardKey": "en:base1-17",
+              "name": "Beedrill",
+              "score": 0.9133821274636167
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-057.jpg",
+          "expected": "en:base1-20",
+          "expectedName": "Electabuzz",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.9365483956387998
+            },
+            {
+              "cardKey": "en:svp-067",
+              "name": "Roaring Moon ex",
+              "score": 0.9363522684624271
+            },
+            {
+              "cardKey": "en:swsh12.5-055",
+              "name": "Zeraora VSTAR",
+              "score": 0.936344104527785
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-058.jpg",
+          "expected": "en:sv10.5b-168",
+          "expectedName": "Excadrill ex",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-62",
+              "name": "Tauros",
+              "score": 0.9467542850420085
+            },
+            {
+              "cardKey": "en:swsh12.5-099",
+              "name": "Zamazenta VSTAR",
+              "score": 0.9463735314415879
+            },
+            {
+              "cardKey": "en:ex16-98",
+              "name": "Skarmory ex",
+              "score": 0.9417963884994054
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-059.jpg",
+          "expected": "en:swsh12.5-099",
+          "expectedName": "Zamazenta VSTAR",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-29",
+              "name": "Pinsir",
+              "score": 0.9333442385217345
+            },
+            {
+              "cardKey": "en:swshp-SWSH079",
+              "name": "Galarian Mr. Rime",
+              "score": 0.9308934529142439
+            },
+            {
+              "cardKey": "en:xy12-75",
+              "name": "Charizard Spirit Link",
+              "score": 0.9252246272028859
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-060.jpg",
+          "expected": "en:swsh12.5-004",
+          "expectedName": "Tangela",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh7-206",
+              "name": "Trevenant VMAX",
+              "score": 0.7904559867026459
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.7864891708396797
+            },
+            {
+              "cardKey": "en:base4-129",
+              "name": "Psychic Energy",
+              "score": 0.7765555786036122
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-061.jpg",
+          "expected": "en:swsh12.5-059",
+          "expectedName": "Mewtwo",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-038",
+              "name": "Duosion",
+              "score": 0.8871761799664367
+            },
+            {
+              "cardKey": "en:sm6-54",
+              "name": "Hoopa",
+              "score": 0.885874876994157
+            },
+            {
+              "cardKey": "en:xy12-66",
+              "name": "Rattata",
+              "score": 0.8839280862704186
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-062.jpg",
+          "expected": "en:xy12-3",
+          "expectedName": "Caterpie",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-78",
+              "name": "Machop",
+              "score": 0.9083809378374622
+            },
+            {
+              "cardKey": "en:base1-65",
+              "name": "Staryu",
+              "score": 0.9006469726674753
+            },
+            {
+              "cardKey": "en:base1-52",
+              "name": "Machop",
+              "score": 0.8837901816153704
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-063.jpg",
+          "expected": "en:sv10.5b-138",
+          "expectedName": "Escavalier",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:swsh6-214",
+              "name": "Doctor",
+              "score": 0.8708224467333721
+            },
+            {
+              "cardKey": "en:swsh4-136",
+              "name": "Loudred",
+              "score": 0.8503346723269734
+            },
+            {
+              "cardKey": "en:basep-28",
+              "name": "Surfing Pikachu",
+              "score": 0.8436188311063914
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-064.jpg",
+          "expected": "en:xy12-52",
+          "expectedName": "Mewtwo EX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-66",
+              "name": "Rattata",
+              "score": 0.946689922918391
+            },
+            {
+              "cardKey": "en:dp4-86",
+              "name": "Swablu",
+              "score": 0.935661060978685
+            },
+            {
+              "cardKey": "en:base1-21",
+              "name": "Electrode",
+              "score": 0.9355558487661741
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-065.jpg",
+          "expected": "en:base4-48",
+          "expectedName": "Lickitung",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base4-40",
+              "name": "Farfetch'd",
+              "score": 0.9136000360604078
+            },
+            {
+              "cardKey": "en:sm9-100",
+              "name": "Bronzor",
+              "score": 0.9123601126498583
+            },
+            {
+              "cardKey": "en:base4-41",
+              "name": "Fearow",
+              "score": 0.9094612413019637
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-066.jpg",
+          "expected": "en:base4-21",
+          "expectedName": "Beedrill",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-27",
+              "name": "Farfetch'd",
+              "score": 0.9336290149512231
+            },
+            {
+              "cardKey": "en:base1-22",
+              "name": "Pidgeotto",
+              "score": 0.9205998577739528
+            },
+            {
+              "cardKey": "en:ex2-13",
+              "name": "Solrock",
+              "score": 0.918974665342021
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-067.jpg",
+          "expected": "en:sv10.5b-153",
+          "expectedName": "Cinccino",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:xy12-67",
+              "name": "Raticate",
+              "score": 0.9086882638618503
+            },
+            {
+              "cardKey": "en:sv10.5b-038",
+              "name": "Duosion",
+              "score": 0.8967070058967702
+            },
+            {
+              "cardKey": "en:ex5-97",
+              "name": "Regice ex",
+              "score": 0.8903055661726864
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-068.jpg",
+          "expected": "en:xy12-49",
+          "expectedName": "Drowzee",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-079",
+              "name": "Air Balloon",
+              "score": 0.5782573261539472
+            },
+            {
+              "cardKey": "en:xy1-135",
+              "name": "Lightning Energy",
+              "score": 0.5375546419083215
+            },
+            {
+              "cardKey": "en:xy12-93",
+              "name": "Water Energy",
+              "score": 0.4773989596848073
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-069.jpg",
+          "expected": "en:base4-100",
+          "expectedName": "Weedle",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.7129591670095986
+            },
+            {
+              "cardKey": "en:ex9-71",
+              "name": "Voltorb",
+              "score": 0.6888339742433102
+            },
+            {
+              "cardKey": "en:base4-107",
+              "name": "Scoop Up",
+              "score": 0.6838847767636039
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-070.jpg",
+          "expected": "en:base4-124",
+          "expectedName": "Double Colorless Energy",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-001",
+              "name": "Oddish",
+              "score": 0.8714489765731246
+            },
+            {
+              "cardKey": "en:dp1-123",
+              "name": "Grass Energy",
+              "score": 0.8695411940922602
+            },
+            {
+              "cardKey": "en:ecard3-87",
+              "name": "Poliwag",
+              "score": 0.8672569017866443
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-071.jpg",
+          "expected": "en:base1-2",
+          "expectedName": "Blastoise",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-12",
+              "name": "Nidoqueen",
+              "score": 0.9213288147603665
+            },
+            {
+              "cardKey": "en:dv1-19",
+              "name": "First Ticket",
+              "score": 0.9197487708563874
+            },
+            {
+              "cardKey": "en:base4-2",
+              "name": "Blastoise",
+              "score": 0.9193501574879741
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-072.jpg",
+          "expected": "en:base4-14",
+          "expectedName": "Pidgeot",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh5-35",
+              "name": "Galarian Mr. Rime",
+              "score": 0.8668245267878527
+            },
+            {
+              "cardKey": "en:base4-121",
+              "name": "Poké Ball",
+              "score": 0.8636506871338839
+            },
+            {
+              "cardKey": "en:sv06-055",
+              "name": "Phione",
+              "score": 0.8540924550042499
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-073.jpg",
+          "expected": "en:sv10.5b-142",
+          "expectedName": "Pawniard",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:ex6-67",
+              "name": "Magikarp",
+              "score": 0.7891185663946081
+            },
+            {
+              "cardKey": "en:A2a-087",
+              "name": "Irida",
+              "score": 0.7776978413016424
+            },
+            {
+              "cardKey": "en:sv10.5b-117",
+              "name": "Musharna",
+              "score": 0.7733420599005068
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-074.jpg",
+          "expected": "en:sv10.5b-092",
+          "expectedName": "Lilligant",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-119",
+              "name": "Duosion",
+              "score": 0.9331925423642361
+            },
+            {
+              "cardKey": "en:base4-61",
+              "name": "Seel",
+              "score": 0.9290418595163501
+            },
+            {
+              "cardKey": "en:xy12-67",
+              "name": "Raticate",
+              "score": 0.9272502354476135
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-075.jpg",
+          "expected": "en:sv10.5b-120",
+          "expectedName": "Elgyem",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-86",
+              "name": "Pidgey",
+              "score": 0.9473779752854317
+            },
+            {
+              "cardKey": "en:base1-16",
+              "name": "Zapdos",
+              "score": 0.9332338697552218
+            },
+            {
+              "cardKey": "en:dv1-19",
+              "name": "First Ticket",
+              "score": 0.9329898051077794
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-076.jpg",
+          "expected": "en:sv10.5b-023",
+          "expectedName": "Carracosta",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sm4-114",
+              "name": "Nihilego GX",
+              "score": 0.9341761270776092
+            },
+            {
+              "cardKey": "en:xy12-29",
+              "name": "Dewgong",
+              "score": 0.922935212772801
+            },
+            {
+              "cardKey": "en:swsh6-36",
+              "name": "Froslass",
+              "score": 0.922298760398043
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-077.jpg",
+          "expected": "en:swsh12.5-157",
+          "expectedName": "Fighting Energy",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:g1-50",
+              "name": "Clefairy",
+              "score": 0.7867025144168619
+            },
+            {
+              "cardKey": "en:base4-125",
+              "name": "Fighting Energy",
+              "score": 0.7712989248874514
+            },
+            {
+              "cardKey": "en:A2-067",
+              "name": "Mismagius ex",
+              "score": 0.7710417324512377
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-078.jpg",
+          "expected": "en:base1-85",
+          "expectedName": "Pokémon Center",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base4-117",
+              "name": "Super Potion",
+              "score": 0.9420621897982837
+            },
+            {
+              "cardKey": "en:base4-119",
+              "name": "Energy Removal",
+              "score": 0.9392031883458686
+            },
+            {
+              "cardKey": "en:base1-71",
+              "name": "Computer Search",
+              "score": 0.9357828310737359
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-079.jpg",
+          "expected": "en:base4-6",
+          "expectedName": "Clefairy",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-79",
+              "name": "Super Energy Removal",
+              "score": 0.9387117673557621
+            },
+            {
+              "cardKey": "en:sm4-27",
+              "name": "Milotic",
+              "score": 0.9357442978053419
+            },
+            {
+              "cardKey": "en:base4-39",
+              "name": "Exeggutor",
+              "score": 0.9348230395062866
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-080.jpg",
+          "expected": "en:xy12-84",
+          "expectedName": "Professor Oak's Hint",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:sv09-038",
+              "name": "Wingull",
+              "score": 0.7217911303754501
+            },
+            {
+              "cardKey": "en:base4-125",
+              "name": "Fighting Energy",
+              "score": 0.7083714863503415
+            },
+            {
+              "cardKey": "en:g1-50",
+              "name": "Clefairy",
+              "score": 0.6936695714838287
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-081.jpg",
+          "expected": "en:swsh12.5-045",
+          "expectedName": "Rotom V",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv03-080",
+              "name": "Cleffa",
+              "score": 0.9213738802754857
+            },
+            {
+              "cardKey": "en:svp-090",
+              "name": "Metang",
+              "score": 0.9198190678587211
+            },
+            {
+              "cardKey": "en:xy2-23",
+              "name": "Milotic",
+              "score": 0.9157921820023543
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-082.jpg",
+          "expected": "en:base1-31",
+          "expectedName": "Jynx",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:ecard3-145",
+              "name": "Celebi",
+              "score": 0.8935253306933325
+            },
+            {
+              "cardKey": "en:sv08-239",
+              "name": "Latias ex",
+              "score": 0.8841160041608291
+            },
+            {
+              "cardKey": "en:xy5-91",
+              "name": "Sharpedo EX",
+              "score": 0.8802834101244631
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-083.jpg",
+          "expected": "en:xy12-32",
+          "expectedName": "Starmie BREAK",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-117",
+              "name": "Musharna",
+              "score": 0.7250083111286624
+            },
+            {
+              "cardKey": "en:swsh4-67",
+              "name": "Shuppet",
+              "score": 0.7104403227564272
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.7081705169633608
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-084.jpg",
+          "expected": "en:xy12-13",
+          "expectedName": "M Charizard EX",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.9192654523513772
+            },
+            {
+              "cardKey": "en:sv01-145",
+              "name": "Blissey",
+              "score": 0.9138745212876822
+            },
+            {
+              "cardKey": "en:ecard1-83",
+              "name": "Jynx",
+              "score": 0.9082339745730286
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-085.jpg",
+          "expected": "en:base1-46",
+          "expectedName": "Charmander",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:sv10.5b-117",
+              "name": "Musharna",
+              "score": 0.8067228131435052
+            },
+            {
+              "cardKey": "en:ex9-71",
+              "name": "Voltorb",
+              "score": 0.8040899152112532
+            },
+            {
+              "cardKey": "en:A2a-087",
+              "name": "Irida",
+              "score": 0.8000338973990454
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-086.jpg",
+          "expected": "en:sv10.5b-001",
+          "expectedName": "Snivy",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.9100637957349962
+            },
+            {
+              "cardKey": "en:base4-38",
+              "name": "Dratini",
+              "score": 0.8926936485455254
+            },
+            {
+              "cardKey": "en:base1-75",
+              "name": "Lass",
+              "score": 0.8837635916695872
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-087.jpg",
+          "expected": "en:sv10.5b-066",
+          "expectedName": "Cobalion",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base4-72",
+              "name": "Doduo",
+              "score": 0.9012068164680366
+            },
+            {
+              "cardKey": "en:base1-61",
+              "name": "Rattata",
+              "score": 0.8939475906676321
+            },
+            {
+              "cardKey": "en:base1-52",
+              "name": "Machop",
+              "score": 0.8938634557374846
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-088.jpg",
+          "expected": "en:sv10.5b-030",
+          "expectedName": "Tynamo",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:xy12-85",
+              "name": "Revive",
+              "score": 0.8948322132168098
+            },
+            {
+              "cardKey": "en:sv08-184",
+              "name": "Passho Berry",
+              "score": 0.8877284847020928
+            },
+            {
+              "cardKey": "en:base1-94",
+              "name": "Potion",
+              "score": 0.8813995709261191
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-089.jpg",
+          "expected": "en:swsh12.5-096",
+          "expectedName": "Zacian VSTAR",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xy12-66",
+              "name": "Rattata",
+              "score": 0.8984100978777172
+            },
+            {
+              "cardKey": "en:dp4-86",
+              "name": "Swablu",
+              "score": 0.8938048130705015
+            },
+            {
+              "cardKey": "en:neo3-58",
+              "name": "Unown [K]",
+              "score": 0.892680359143523
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-090.jpg",
+          "expected": "en:sv10.5b-058",
+          "expectedName": "Krokorok",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:xy12-29",
+              "name": "Dewgong",
+              "score": 0.9171348511302182
+            },
+            {
+              "cardKey": "en:dp4-34",
+              "name": "Cacturne",
+              "score": 0.9021403141234322
+            },
+            {
+              "cardKey": "en:A2b-033",
+              "name": "Drifloon",
+              "score": 0.901709322974541
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-091.jpg",
+          "expected": "en:base1-37",
+          "expectedName": "Nidorino",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-21",
+              "name": "Electrode",
+              "score": 0.9411628203016378
+            },
+            {
+              "cardKey": "en:pl2-53",
+              "name": "Vibrava",
+              "score": 0.9411084830378391
+            },
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.9382458552160711
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-092.jpg",
+          "expected": "en:swsh12.5-057",
+          "expectedName": "Exeggcute",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh11-192",
+              "name": "Iscan",
+              "score": 0.8460360566783286
+            },
+            {
+              "cardKey": "en:A2-074",
+              "name": "Drifblim",
+              "score": 0.8395002117307147
+            },
+            {
+              "cardKey": "en:bw10-36",
+              "name": "Uxie",
+              "score": 0.8361703587866598
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-093.jpg",
+          "expected": "en:swsh12.5-072",
+          "expectedName": "Pancham",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:base1-96",
+              "name": "Double Colorless Energy",
+              "score": 0.8668184685752577
+            },
+            {
+              "cardKey": "en:base4-124",
+              "name": "Double Colorless Energy",
+              "score": 0.8591122501476637
+            },
+            {
+              "cardKey": "en:base4-126",
+              "name": "Fire Energy",
+              "score": 0.8588639399636715
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-094.jpg",
+          "expected": "en:sv10.5b-088",
+          "expectedName": "Servine",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:A1-262",
+              "name": "Mewtwo ex",
+              "score": 0.9075212190203193
+            },
+            {
+              "cardKey": "en:base1-33",
+              "name": "Kakuna",
+              "score": 0.9064460660770051
+            },
+            {
+              "cardKey": "en:xy12-15",
+              "name": "Ninetales",
+              "score": 0.9020988334917774
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-095.jpg",
+          "expected": "en:sv10.5b-021",
+          "expectedName": "Seismitoad",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:sv08.5-067",
+              "name": "Bronzong",
+              "score": 0.916589121333263
+            },
+            {
+              "cardKey": "en:dp6-60",
+              "name": "Ledian",
+              "score": 0.9071283055807213
+            },
+            {
+              "cardKey": "en:base4-101",
+              "name": "Computer Search",
+              "score": 0.9026870208590645
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-096.jpg",
+          "expected": "en:xy12-43",
+          "expectedName": "Nidoran♂",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:swsh12.5-152",
+              "name": "Grass Energy",
+              "score": 0.6089968891856287
+            },
+            {
+              "cardKey": "en:swsh12.5-155",
+              "name": "Lightning Energy",
+              "score": 0.5931214684562331
+            },
+            {
+              "cardKey": "en:swshp-SWSH216",
+              "name": "Morpeko V-UNION",
+              "score": 0.5399881827199213
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-097.jpg",
+          "expected": "en:swsh12.5-098",
+          "expectedName": "Zamazenta V",
+          "cause": "tilted",
+          "top3": [
+            {
+              "cardKey": "en:xyp-XY22",
+              "name": "Darkrai",
+              "score": 0.9461997581425055
+            },
+            {
+              "cardKey": "en:swsh12.5-113",
+              "name": "Regigigas V",
+              "score": 0.9416430418477191
+            },
+            {
+              "cardKey": "en:swsh10-179",
+              "name": "Oranguru V",
+              "score": 0.93831401377895
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-098.jpg",
+          "expected": "en:base1-80",
+          "expectedName": "Defender",
+          "cause": "holo/glare",
+          "top3": [
+            {
+              "cardKey": "en:ecard3-87",
+              "name": "Poliwag",
+              "score": 0.8799376725947526
+            },
+            {
+              "cardKey": "en:sv03.5-189",
+              "name": "Golem ex",
+              "score": 0.864481520252825
+            },
+            {
+              "cardKey": "en:swsh5-35",
+              "name": "Galarian Mr. Rime",
+              "score": 0.8604976611690549
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-099.jpg",
+          "expected": "en:sv10.5b-029",
+          "expectedName": "Emolga",
+          "cause": "lighting",
+          "top3": [
+            {
+              "cardKey": "en:base1-58",
+              "name": "Pikachu",
+              "score": 0.9378560603580357
+            },
+            {
+              "cardKey": "en:hgss2-37",
+              "name": "Poliwhirl",
+              "score": 0.9327245671432354
+            },
+            {
+              "cardKey": "en:neo3-58",
+              "name": "Unown [K]",
+              "score": 0.9306843506071063
+            }
+          ]
+        },
+        {
+          "filename": "synthetic-queries/query-100.jpg",
+          "expected": "en:base1-14",
+          "expectedName": "Raichu",
+          "cause": "background/perspective",
+          "top3": [
+            {
+              "cardKey": "en:pl1-64",
+              "name": "Vigoroth",
+              "score": 0.8285587057132463
+            },
+            {
+              "cardKey": "en:base4-38",
+              "name": "Dratini",
+              "score": 0.8210823946031665
+            },
+            {
+              "cardKey": "en:sm12-233",
+              "name": "Professor Oak’s Setup",
+              "score": 0.8201925090326428
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset": "real",
+      "modelId": "Xenova/mobileclip_s0",
+      "modelLabel": "MobileCLIP S0",
+      "preprocessing": "center-crop",
+      "queryCount": 0,
+      "status": "not available: add labeled photos to photos/labels.csv",
+      "dimension": 512
+    }
+  ]
+}

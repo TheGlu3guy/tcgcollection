@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tcgcollection-shell-v5";
+const CACHE_VERSION = "tcgcollection-shell-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -78,6 +78,19 @@ async function staleWhileRevalidate(request) {
   return cached ?? network;
 }
 
+async function networkFirstAsset(request) {
+  const cache = await caches.open(CACHE_VERSION);
+  try {
+    const response = await fetch(request);
+    if (response.ok) await cache.put(request, response.clone());
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw new Error("The requested offline asset is not cached.");
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -90,11 +103,20 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
   if (
+    url.pathname.includes("/image-search/") &&
+    (url.pathname.endsWith(".json") || url.pathname.endsWith(".bin"))
+  ) {
+    event.respondWith(networkFirstAsset(request));
+    return;
+  }
+  if (
     url.pathname.endsWith(".js") ||
     url.pathname.endsWith(".css") ||
     url.pathname.endsWith(".png") ||
     url.pathname.endsWith(".svg") ||
-    url.pathname.endsWith(".webmanifest")
+    url.pathname.endsWith(".webmanifest") ||
+    url.pathname.endsWith(".json") ||
+    url.pathname.endsWith(".bin")
   ) {
     event.respondWith(staleWhileRevalidate(request));
   }

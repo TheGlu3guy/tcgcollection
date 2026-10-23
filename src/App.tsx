@@ -11,6 +11,7 @@ import {
   LoaderCircle,
   Menu,
   RefreshCw,
+  ScanLine,
   Search,
   Settings,
   ShieldCheck,
@@ -29,6 +30,7 @@ import { CardsPage } from "./pages/CardsPage";
 import { SetsPage } from "./pages/SetsPage";
 import { ListsPage } from "./pages/ListsPage";
 import { PokedexPage } from "./pages/PokedexPage";
+import { ScanPage } from "./pages/ScanPage";
 import {
   APP_STORAGE_KEY,
   CATALOG_VERSION,
@@ -84,7 +86,7 @@ import type {
   PageName,
 } from "./types";
 
-const PAGE_NAMES: PageName[] = ["dashboard", "cards", "sets", "lists", "pokedex"];
+const PAGE_NAMES: PageName[] = ["dashboard", "cards", "sets", "lists", "pokedex", "scan"];
 const CLOUD_CLIENT_KEY = "tcgcollection-cloud-client-id";
 
 function getCloudClientId(): string {
@@ -791,6 +793,7 @@ export default function App() {
               ["sets", "Sets"],
               ["lists", "Lists"],
               ["pokedex", "Pokédex"],
+              ["scan", "Scan"],
             ].map(([pageName, label]) => (
               <button
                 type="button"
@@ -879,6 +882,7 @@ export default function App() {
               ["sets", "Sets", Layers3],
               ["lists", "Lists", Heart],
               ["pokedex", "Pokédex", Sparkles],
+              ["scan", "Scan", ScanLine],
             ].map(([pageName, label, Icon]) => (
               <button
                 type="button"
@@ -1010,6 +1014,9 @@ export default function App() {
             )}
             {page === "pokedex" && (
               <PokedexPage catalog={catalog} data={data} onOpenCard={setActiveCard} />
+            )}
+            {page === "scan" && (
+              <ScanPage catalog={catalog} onOpenCard={setActiveCard} />
             )}
           </div>
         ) : null}
