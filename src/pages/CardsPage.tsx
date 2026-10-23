@@ -219,6 +219,14 @@ export function CardsPage({
     );
   };
 
+  const selectArtist = (artist: string) => {
+    updateFilters({ artist });
+    setArtistSuggestionsOpen(false);
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      setAdvancedOpen(false);
+    }
+  };
+
   useEffect(() => {
     const controller = new AbortController();
     const batch = priceFetchCards;
@@ -444,6 +452,25 @@ export function CardsPage({
             </label>
             <label className="artist-filter">
               <span>Artist</span>
+              <div className="artist-mobile-select-wrap">
+                <select
+                  value={filters.artist}
+                  onChange={(event) => selectArtist(event.target.value)}
+                  aria-label="Filter by artist"
+                >
+                  <option value="">All artists</option>
+                  {filters.artist &&
+                    !catalog.artists.includes(filters.artist) && (
+                      <option value={filters.artist}>{filters.artist}</option>
+                    )}
+                  {catalog.artists.map((artist) => (
+                    <option key={artist} value={artist}>
+                      {artist}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={15} />
+              </div>
               <div className="artist-autocomplete">
               <input
                 type="search"
@@ -484,14 +511,7 @@ export function CardsPage({
                         role="option"
                         aria-selected={filters.artist === artist}
                         key={artist}
-                        onPointerDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                          updateFilters({ artist });
-                          setArtistSuggestionsOpen(false);
-                          if (window.matchMedia("(max-width: 760px)").matches) {
-                            setAdvancedOpen(false);
-                          }
-                        }}
+                        onClick={() => selectArtist(artist)}
                       >
                         {artist}
                       </button>

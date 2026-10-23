@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tcgcollection-shell-v3";
+const CACHE_VERSION = "tcgcollection-shell-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
