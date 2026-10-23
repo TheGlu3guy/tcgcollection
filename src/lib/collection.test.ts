@@ -237,6 +237,38 @@ describe("filters and statistics", () => {
     ).toHaveLength(0);
   });
 
+  it("combines not-in-collection and wishlist filters", () => {
+    const wishlisted = toggleWishlist(freshData(), card.key);
+    const filters: CardFilters = {
+      ...baseFilters,
+      status: "not-collection",
+      listId: "wishlist",
+    };
+
+    expect(filterCards([card], filters, wishlisted)).toHaveLength(1);
+    expect(
+      filterCards([card], filters, addCardCopy(wishlisted, card)),
+    ).toHaveLength(0);
+  });
+
+  it("selects the matching regional language before applying a region filter", () => {
+    const japanese = {
+      ...card,
+      key: "ja:base1-4",
+      language: "ja" as const,
+      languageLabel: "Japanese",
+      region: "Japan" as const,
+    };
+    const filtered = filterCards(
+      [card, japanese],
+      { ...baseFilters, region: "Japan", language: "all" },
+      freshData(),
+    );
+
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].language).toBe("ja");
+  });
+
   it("places cards with unknown release dates after dated cards", () => {
     const unknown = {
       ...card,

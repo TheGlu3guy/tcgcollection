@@ -279,10 +279,13 @@ export function filterCards(
     selectedList?.cardKeys.map((key) => cardsByKey.get(key)?.groupKey ?? key) ?? [],
   );
   const artistQuery = filters.artist.trim().toLocaleLowerCase();
-  const visibleCards = getVisibleCards(cards, filters.language);
+  const regionCards =
+    filters.region === "all"
+      ? cards
+      : cards.filter((card) => card.region === filters.region);
+  const visibleCards = getVisibleCards(regionCards, filters.language);
 
   const filtered = visibleCards.filter((card) => {
-    if (filters.region !== "all" && card.region !== filters.region) return false;
     if (filters.setId !== "all" && `${card.language}:${card.setId}` !== filters.setId) return false;
     if (artistQuery && !card.artist?.toLocaleLowerCase().includes(artistQuery)) return false;
     if (filters.status === "collection" && !owned.has(card.groupKey)) return false;

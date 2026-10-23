@@ -84,6 +84,6 @@ export const GENERATIONS = [
   { id: 9, roman: "IX", name: "Paldea", start: 906, end: 1025, accent: "#35a7b8" },
 ];
 
-export const CATALOG_VERSION = 13;
-export const CATALOG_CACHE_KEY = "tcgcollection-catalog-v13";
+export const CATALOG_VERSION = 14;
+export const CATALOG_CACHE_KEY = "tcgcollection-catalog-v14";
 export const APP_STORAGE_KEY = "tcgcollection-personal-v1";

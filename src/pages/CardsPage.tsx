@@ -148,12 +148,22 @@ export function CardsPage({
         .sort((a, b) => (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "")),
     [catalog.sets, filters.language, filters.region],
   );
+  const artistOptions = useMemo(
+    () =>
+      [
+        ...new Set([
+          ...catalog.artists,
+          ...catalog.cards.flatMap((card) => (card.artist ? [card.artist] : [])),
+        ]),
+      ].sort((a, b) => a.localeCompare(b)),
+    [catalog.artists, catalog.cards],
+  );
   const artistSuggestions = useMemo(() => {
     const query = filters.artist.trim().toLocaleLowerCase();
-    return catalog.artists
+    return artistOptions
       .filter((artist) => !query || artist.toLocaleLowerCase().includes(query))
       .slice(0, 10);
-  }, [catalog.artists, filters.artist]);
+  }, [artistOptions, filters.artist]);
   const priceSortActive = filters.sort === "price-asc" || filters.sort === "price-desc";
   const sortedCards = useMemo(
     () =>
@@ -452,25 +462,6 @@ export function CardsPage({
             </label>
             <label className="artist-filter">
               <span>Artist</span>
-              <div className="artist-mobile-select-wrap">
-                <select
-                  value={filters.artist}
-                  onChange={(event) => selectArtist(event.target.value)}
-                  aria-label="Filter by artist"
-                >
-                  <option value="">All artists</option>
-                  {filters.artist &&
-                    !catalog.artists.includes(filters.artist) && (
-                      <option value={filters.artist}>{filters.artist}</option>
-                    )}
-                  {catalog.artists.map((artist) => (
-                    <option key={artist} value={artist}>
-                      {artist}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={15} />
-              </div>
               <div className="artist-autocomplete">
               <input
                 type="search"
@@ -511,6 +502,10 @@ export function CardsPage({
                         role="option"
                         aria-selected={filters.artist === artist}
                         key={artist}
+                        onPointerDown={(event) => {
+                          event.preventDefault();
+                          selectArtist(artist);
+                        }}
                         onClick={() => selectArtist(artist)}
                       >
                         {artist}

@@ -167,6 +167,40 @@ async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function postGraphql<T extends { errors?: { message: string }[] }>(
+  query: string,
+  signal?: AbortSignal,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await fetch(`${API_ROOT}/graphql`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+        signal,
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      const result = (await response.json()) as T;
+      if (result.errors?.length) {
+        throw new Error(result.errors[0].message);
+      }
+      return result;
+    } catch (reason) {
+      if (signal?.aborted) throw reason;
+      lastError = reason;
+      await new Promise((resolve) =>
+        window.setTimeout(resolve, 250 * (attempt + 1)),
+      );
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Card metadata could not be loaded.");
+}
+
 async function fetchLanguage(
   language: LanguageCode,
   signal: AbortSignal,
@@ -181,14 +215,7 @@ async function fetchLanguage(
 async function fetchGlobalSetMetadata(signal: AbortSignal): Promise<RawSet[]> {
   const query =
     "{ sets { id name releaseDate logo symbol tcgOnline cardCount { total official } serie { id name } } }";
-  const response = await fetch(`${API_ROOT}/graphql`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-    signal,
-  });
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  const result = (await response.json()) as GraphqlSetsResponse;
+  const result = await postGraphql<GraphqlSetsResponse>(query, signal);
   if (!result.data?.sets) {
     throw new Error(result.errors?.[0]?.message ?? "Set metadata was unavailable.");
   }
@@ -197,14 +224,7 @@ async function fetchGlobalSetMetadata(signal: AbortSignal): Promise<RawSet[]> {
 
 async function fetchGlobalCardArtists(signal: AbortSignal): Promise<RawArtistCard[]> {
   const query = "{ cards { id localId illustrator set { id } } }";
-  const response = await fetch(`${API_ROOT}/graphql`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-    signal,
-  });
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  const result = (await response.json()) as GraphqlCardsResponse;
+  const result = await postGraphql<GraphqlCardsResponse>(query, signal);
   if (!result.data?.cards) {
     throw new Error(result.errors?.[0]?.message ?? "Artist metadata was unavailable.");
   }
@@ -411,10 +431,8 @@ export async function loadCatalog(options: CatalogLoadOptions = {}): Promise<Cat
   const timeout = window.setTimeout(() => controller.abort(), 90_000);
   const signal = options.signal ?? controller.signal;
   let completedLanguages = 0;
-  const metadataPromise = fetchGlobalSetMetadata(signal).catch(() => [] as RawSet[]);
-  const artistsPromise = fetchGlobalCardArtists(signal).catch(
-    () => [] as RawArtistCard[],
-  );
+  const metadataPromise = fetchGlobalSetMetadata(signal);
+  const artistsPromise = fetchGlobalCardArtists(signal);
   const results = await Promise.allSettled(
     LANGUAGES.map(async (language) => {
       const data = await fetchLanguage(language.code, signal);
@@ -431,6 +449,9 @@ export async function loadCatalog(options: CatalogLoadOptions = {}): Promise<Cat
     metadataPromise,
     artistsPromise,
   ]);
+  if (!globalSetMetadata.length || !artistCards.length) {
+    throw new Error("Card metadata is incomplete. Try syncing the catalog again.");
+  }
   window.clearTimeout(timeout);
 
   const successful = results
