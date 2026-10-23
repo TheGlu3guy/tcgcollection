@@ -83,6 +83,7 @@ export function CardsPage({
 }: CardsPageProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [artistSuggestionsOpen, setArtistSuggestionsOpen] = useState(false);
   const [prices, setPrices] = useState<Record<string, MarketPrices>>({});
   const [pricingLoading, setPricingLoading] = useState<Set<string>>(new Set());
   const [priceChecked, setPriceChecked] = useState<Set<string>>(new Set());
@@ -147,6 +148,12 @@ export function CardsPage({
         .sort((a, b) => (b.releaseDate ?? "").localeCompare(a.releaseDate ?? "")),
     [catalog.sets, filters.language, filters.region],
   );
+  const artistSuggestions = useMemo(() => {
+    const query = filters.artist.trim().toLocaleLowerCase();
+    return catalog.artists
+      .filter((artist) => !query || artist.toLocaleLowerCase().includes(query))
+      .slice(0, 10);
+  }, [catalog.artists, filters.artist]);
   const priceSortActive = filters.sort === "price-asc" || filters.sort === "price-desc";
   const sortedCards = useMemo(
     () =>
@@ -437,18 +444,61 @@ export function CardsPage({
             </label>
             <label className="artist-filter">
               <span>Artist</span>
+              <div className="artist-autocomplete">
               <input
                 type="search"
                 value={filters.artist}
                 onChange={(event) => updateFilters({ artist: event.target.value })}
                 placeholder="Start typing an artist…"
-                list="artist-options"
+                onFocus={() => setArtistSuggestionsOpen(true)}
+                onBlur={() =>
+                  window.setTimeout(() => setArtistSuggestionsOpen(false), 150)
+                }
+                role="combobox"
+                aria-expanded={artistSuggestionsOpen}
+                aria-controls="artist-suggestions"
+                aria-autocomplete="list"
               />
-              <datalist id="artist-options">
-                {catalog.artists.map((artist) => (
-                  <option value={artist} key={artist} />
-                ))}
-              </datalist>
+                {filters.artist && (
+                  <button
+                    type="button"
+                    className="artist-clear-button"
+                    onClick={() => {
+                      updateFilters({ artist: "" });
+                      setArtistSuggestionsOpen(false);
+                    }}
+                    aria-label="Clear artist filter"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+                {artistSuggestionsOpen && artistSuggestions.length > 0 && (
+                  <div
+                    className="artist-suggestions"
+                    id="artist-suggestions"
+                    role="listbox"
+                  >
+                    {artistSuggestions.map((artist) => (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={filters.artist === artist}
+                        key={artist}
+                        onPointerDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                          updateFilters({ artist });
+                          setArtistSuggestionsOpen(false);
+                          if (window.matchMedia("(max-width: 760px)").matches) {
+                            setAdvancedOpen(false);
+                          }
+                        }}
+                      >
+                        {artist}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </label>
           </div>
           {activeFilterCount > 0 && (
@@ -469,6 +519,16 @@ export function CardsPage({
               <X size={13} /> Clear filters
             </button>
           )}
+          <button
+            type="button"
+            className="mobile-filter-apply"
+            onClick={() => {
+              setArtistSuggestionsOpen(false);
+              setAdvancedOpen(false);
+            }}
+          >
+            Show {formatNumber(filteredCards.length)} matching cards
+          </button>
         </section>
       )}
 

@@ -220,6 +220,23 @@ describe("filters and statistics", () => {
     ).toHaveLength(0);
   });
 
+  it("filters artists case-insensitively from a partial name", () => {
+    expect(
+      filterCards(
+        [card],
+        { ...baseFilters, artist: "ARITA" },
+        freshData(),
+      ),
+    ).toHaveLength(1);
+    expect(
+      filterCards(
+        [card],
+        { ...baseFilters, artist: "morii" },
+        freshData(),
+      ),
+    ).toHaveLength(0);
+  });
+
   it("places cards with unknown release dates after dated cards", () => {
     const unknown = {
       ...card,
