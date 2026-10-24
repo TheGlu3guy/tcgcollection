@@ -1,5 +1,4 @@
 import {
-  ArrowUpRight,
   Check,
   Heart,
   ListPlus,
@@ -8,8 +7,8 @@ import {
 } from "lucide-react";
 import { LANGUAGE_BY_CODE } from "../lib/constants";
 import { imageUrl } from "../lib/catalog";
-import { formatCurrency } from "../lib/collection";
 import type { CatalogCard, MarketPrices } from "../types";
+import { MarketplacePrice } from "./MarketplacePrice";
 import { CardImage } from "./Shared";
 
 interface CardTileProps {
@@ -28,54 +27,6 @@ interface CardTileProps {
   onRemove: () => void;
   onToggleWishlist: () => void;
   onManageLists: () => void;
-}
-
-function formatPrice(price: MarketPrices["tcgplayer"] | undefined): string {
-  return price
-    ? formatCurrency(
-        price.amount,
-        price.currency,
-        price.currency === "USD" ? "en-US" : undefined,
-      )
-    : "—";
-}
-
-function MarketplacePrice({
-  cardName,
-  marketplace,
-  price,
-  url,
-}: {
-  cardName: string;
-  marketplace: "TCGplayer" | "Cardmarket";
-  price: MarketPrices["tcgplayer"] | undefined;
-  url?: string;
-}) {
-  const priceText = formatPrice(price);
-  const content = (
-    <>
-      <span className={`price-source ${marketplace.toLocaleLowerCase()}`}>
-        {marketplace}
-        {price?.variant && <small>{price.variant}</small>}
-      </span>
-      <strong>{priceText}</strong>
-      {url && <ArrowUpRight className="price-link-icon" size={10} />}
-      {url && <span className="sr-only"> for {cardName}, opens in new tab</span>}
-    </>
-  );
-
-  return url ? (
-    <a
-      className="price-market-link"
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {content}
-    </a>
-  ) : (
-    <div className={price ? "" : "empty"}>{content}</div>
-  );
 }
 
 export function CardTile({

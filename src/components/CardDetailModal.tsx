@@ -12,17 +12,22 @@ import {
   Sparkles,
 } from "lucide-react";
 import { CONDITIONS, LANGUAGE_BY_CODE, VARIANTS } from "../lib/constants";
-import { getMarketPrices, imageUrl, loadCardDetail } from "../lib/catalog";
 import {
-  formatCurrency,
-  updateCardCopy,
-} from "../lib/collection";
+  getMarketPrices,
+  imageUrl,
+  loadCardDetail,
+  loadMarketPricesForCard,
+} from "../lib/catalog";
+import { updateCardCopy } from "../lib/collection";
 import type {
   AppData,
   CardCopy,
+  CardFilters,
   CardDetail,
   CatalogCard,
+  MarketPrices,
 } from "../types";
+import { MarketplacePrice } from "./MarketplacePrice";
 import { CardImage, CloseButton, Modal } from "./Shared";
 
 interface CardDetailModalProps {
@@ -45,6 +50,7 @@ interface CardDetailModalProps {
   onChangeList: (listId: string) => void;
   onCreateList: () => void;
   onSwitchLanguage: (card: CatalogCard) => void;
+  onFilterCards: (filters: Partial<CardFilters>) => void;
 }
 
 export function CardDetailModal({
@@ -59,9 +65,12 @@ export function CardDetailModal({
   onChangeList,
   onCreateList,
   onSwitchLanguage,
+  onFilterCards,
 }: CardDetailModalProps) {
   const [detail, setDetail] = useState<CardDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [liveMarketPrices, setLiveMarketPrices] = useState<MarketPrices | null>(null);
+  const [marketPricesLoading, setMarketPricesLoading] = useState(false);
   const [error, setError] = useState("");
   const [condition, setCondition] = useState(data.preferences.defaultCondition);
   const [variant, setVariant] = useState(data.preferences.defaultVariant);
@@ -70,6 +79,7 @@ export function CardDetailModal({
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
+    setDetail(null);
     setError("");
     loadCardDetail(card.language, card.id, controller.signal, true)
       .then(setDetail)
@@ -89,11 +99,39 @@ export function CardDetailModal({
   const quantity = ownedCopies.reduce((total, copy) => total + copy.quantity, 0);
   const preferredVariant =
     ownedCopies.length === 1 ? ownedCopies[0].variant : variant;
-  const marketPrices = useMemo(
+  const directMarketPrices = useMemo(
     () => getMarketPrices(detail, preferredVariant, card),
     [card, detail, preferredVariant],
   );
+  const marketPrices = liveMarketPrices ?? directMarketPrices;
   const price = marketPrices.tcgplayer ?? marketPrices.cardmarket;
+  const artist = detail?.illustrator ?? card.artist;
+
+  useEffect(() => {
+    setLiveMarketPrices(null);
+    if (!detail) {
+      setMarketPricesLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setMarketPricesLoading(true);
+    void loadMarketPricesForCard(
+      detail,
+      preferredVariant,
+      card,
+      controller.signal,
+    )
+      .then((prices) => {
+        if (!controller.signal.aborted) setLiveMarketPrices(prices);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (!controller.signal.aborted) setMarketPricesLoading(false);
+      });
+    return () => controller.abort();
+  }, [card, detail, preferredVariant]);
+
   const language = LANGUAGE_BY_CODE[card.language];
   const wishlisted = data.wishlist.some((key) => variantKeys.has(key));
   const inLists = data.lists.filter((list) =>
@@ -171,28 +209,65 @@ export function CardDetailModal({
         <div className="card-detail-content">
           <div className="card-detail-heading">
             <div>
-              <p className="eyebrow">{card.setName}</p>
+              <button
+                type="button"
+                className="eyebrow detail-filter-link"
+                onClick={() =>
+                  onFilterCards({
+                    region: card.region,
+                    language: card.language,
+                    setId: `${card.language}:${card.setId}`,
+                    sort: "number-asc",
+                  })
+                }
+                title={`Show all cards in ${card.setName}`}
+              >
+                {card.setName}
+                <ArrowUpRight size={11} />
+              </button>
               <h2 id="card-detail-title">{detail?.name ?? card.name}</h2>
               <p className="card-detail-subtitle">
                 #{card.localId}
                 {card.setTotal ? ` / ${card.setTotal}` : ""}
-                {detail?.illustrator ? ` · Illustrated by ${detail.illustrator}` : ""}
+                {artist && (
+                  <>
+                    {" · Illustrated by "}
+                    <button
+                      type="button"
+                      className="detail-filter-link"
+                      onClick={() => onFilterCards({ artist })}
+                      title={`Show cards illustrated by ${artist}`}
+                    >
+                      {artist}
+                    </button>
+                  </>
+                )}
               </p>
             </div>
             <div className="market-price-block">
-              <span>Market estimate</span>
+              <span>
+                Market prices
+                {marketPricesLoading && !loading && (
+                  <LoaderCircle className="spin" size={11} />
+                )}
+              </span>
               {loading ? (
                 <LoaderCircle className="spin" size={21} />
-              ) : price ? (
-                <strong>{formatCurrency(price.amount, price.currency)}</strong>
               ) : (
-                <strong>—</strong>
-              )}
-              {price && (
-                <small>
-                  {price.source}
-                  {price.variant ? ` · ${price.variant}` : ""}
-                </small>
+                <div className="detail-market-prices">
+                  <MarketplacePrice
+                    cardName={detail?.name ?? card.name}
+                    marketplace="TCGplayer"
+                    price={marketPrices.tcgplayer}
+                    url={marketPrices.tcgplayerUrl}
+                  />
+                  <MarketplacePrice
+                    cardName={detail?.name ?? card.name}
+                    marketplace="Cardmarket"
+                    price={marketPrices.cardmarket}
+                    url={marketPrices.cardmarketUrl}
+                  />
+                </div>
               )}
             </div>
           </div>

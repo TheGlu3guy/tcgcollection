@@ -779,6 +779,22 @@ export function withLiveTcgplayerPrice(
   };
 }
 
+export async function loadMarketPricesForCard(
+  detail: CardDetail,
+  preferredVariant: string | undefined,
+  card: CatalogCard,
+  signal?: AbortSignal,
+): Promise<MarketPrices> {
+  const prices = getMarketPrices(detail, preferredVariant, card);
+  if (prices.tcgplayer || !prices.tcgplayerProductId) return prices;
+
+  const points = await fetchLiveTcgplayerPrices(
+    [prices.tcgplayerProductId],
+    signal,
+  );
+  return withLiveTcgplayerPrice(prices, points);
+}
+
 export async function loadMarketPrices(
   cards: CatalogCard[],
   onPrice: (cardKey: string, prices: MarketPrices) => void,

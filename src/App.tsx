@@ -743,6 +743,19 @@ export default function App() {
     await commitCloudData(dataRef.current);
   };
 
+  const filterCardsFromDetail = useCallback(
+    (patch: Partial<CardFilters>) => {
+      setActiveCard(null);
+      setFilters({
+        ...DEFAULT_FILTERS,
+        language: data.preferences.catalogLanguage,
+        ...patch,
+      });
+      navigate("cards");
+    },
+    [data.preferences.catalogLanguage, navigate],
+  );
+
   const activeCardDetail = activeCard ? (
     <CardDetailModal
       card={activeCard}
@@ -773,6 +786,7 @@ export default function App() {
       }}
       onCreateList={() => setListEditor({ pendingCard: activeCard })}
       onSwitchLanguage={setActiveCard}
+      onFilterCards={filterCardsFromDetail}
     />
   ) : null;
 
